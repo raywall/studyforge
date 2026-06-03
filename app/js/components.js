@@ -22,10 +22,9 @@ const Components = (() => {
 
   // Init common layout (header + sidebar)
   async function initLayout() {
-    const base = getBase();
     await Promise.all([
-      load('#app-header',  `${base}components/header.html`),
-      load('#app-sidebar', `${base}components/sidebar.html`),
+      load('#app-header',  'components/header.html'),
+      load('#app-sidebar', 'components/sidebar.html'),
     ]);
     initHeader();
     initSidebar();
@@ -36,14 +35,6 @@ const Components = (() => {
         updateCatalogNav(res.simulations || []);
       } catch {}
     }
-  }
-
-  function getBase() {
-    const path = window.location.pathname;
-    // Works for both local file:// and GitHub Pages
-    const parts = path.split('/').filter(Boolean);
-    if (parts.length <= 1) return './';
-    return '../'.repeat(parts.length - 1);
   }
 
   function initHeader() {
