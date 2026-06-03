@@ -99,6 +99,44 @@
       </section>
 
       <section class="admin-panel hidden" data-panel="questions">
+        <form class="admin-form card" id="ai-question-form">
+          <div class="card-header"><strong>Gerar questão com IA</strong></div>
+          <div class="card-body admin-form-grid">
+            <div class="form-group span-2">
+              <label class="form-label">Simulado destino</label>
+              <select class="form-select" name="simulationId"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Plataforma / tópico</label>
+              <input class="form-input" name="subject" required placeholder="aws, gcp, azure, go">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nível</label>
+              <input class="form-input" name="level" required placeholder="foundational, associate, professional">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tópico da questão</label>
+              <input class="form-input" name="category" placeholder="IAM, redes, concorrência, observabilidade">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Dificuldade</label>
+              <select class="form-select" name="difficulty">
+                <option value="medium">Média</option>
+                <option value="easy">Básica</option>
+                <option value="hard">Avançada</option>
+              </select>
+            </div>
+            <div class="form-group span-2">
+              <label class="form-label">Tema / contexto</label>
+              <textarea class="form-input" name="context" rows="4" required placeholder="Descreva o cenário e o conhecimento que a questão deve avaliar"></textarea>
+              <div class="form-hint">A questão gerada será colocada no formulário abaixo para revisão antes de salvar.</div>
+            </div>
+          </div>
+          <div class="card-footer admin-actions">
+            <button class="btn btn-secondary" type="submit">Gerar rascunho</button>
+          </div>
+        </form>
+
         <form class="admin-form card" id="question-form">
           <div class="card-header"><strong>Questão</strong></div>
           <div class="card-body admin-form-grid">

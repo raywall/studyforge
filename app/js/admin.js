@@ -16,6 +16,7 @@
   const state = { simulations: [], questions: [] };
   const simForm = document.getElementById('simulation-form');
   const qForm = document.getElementById('question-form');
+  const aiForm = document.getElementById('ai-question-form');
 
   bindTabs();
   bindForms();
@@ -25,6 +26,7 @@
   document.getElementById('btn-refresh')?.addEventListener('click', loadAll);
   document.getElementById('btn-reset-forms')?.addEventListener('click', resetForms);
   document.getElementById('question-filter')?.addEventListener('change', loadQuestions);
+  aiForm?.elements.simulationId?.addEventListener('change', syncAIFormFromSimulation);
 
   async function loadAll() {
     try {
@@ -92,6 +94,23 @@
         Utils.setLoading(btn, false);
       }
     });
+
+    aiForm?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = aiForm.querySelector('button[type="submit"]');
+      Utils.setLoading(btn, true, 'Gerando...');
+      try {
+        const res = await API.admin.questions.generateAI(readAIQuestionForm());
+        fillQuestionForm(res.question || {});
+        Utils.toast('Rascunho gerado. Revise e salve a questão.', 'success');
+        document.querySelector('[data-tab="questions"]')?.click();
+        qForm?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (err) {
+        Utils.toast(err.message || 'Erro ao gerar questão com IA', 'error');
+      } finally {
+        Utils.setLoading(btn, false);
+      }
+    });
   }
 
   function readSimulationForm() {
@@ -127,6 +146,18 @@
       category: fd.get('category').trim(),
       difficulty: fd.get('difficulty'),
       tags: parseList(fd.get('tags')),
+    };
+  }
+
+  function readAIQuestionForm() {
+    const fd = new FormData(aiForm);
+    return {
+      simulationId: fd.get('simulationId') || '',
+      subject: fd.get('subject').trim().toLowerCase(),
+      level: fd.get('level').trim().toLowerCase(),
+      category: fd.get('category').trim(),
+      difficulty: fd.get('difficulty'),
+      context: fd.get('context').trim(),
     };
   }
 
@@ -172,8 +203,21 @@
       .join('');
     const qSelect = qForm?.elements.simulationId;
     if (qSelect) qSelect.innerHTML = opts || '<option value="">Cadastre um simulado primeiro</option>';
+    const aiSelect = aiForm?.elements.simulationId;
+    if (aiSelect) {
+      aiSelect.innerHTML = opts || '<option value="">Cadastre um simulado primeiro</option>';
+      syncAIFormFromSimulation();
+    }
     const filter = document.getElementById('question-filter');
     if (filter) filter.innerHTML = `<option value="">Todos os simulados</option>${opts}`;
+  }
+
+  function syncAIFormFromSimulation() {
+    if (!aiForm) return;
+    const sim = state.simulations.find(s => s.simulationId === aiForm.elements.simulationId.value);
+    if (!sim) return;
+    aiForm.elements.subject.value = sim.subject || '';
+    aiForm.elements.level.value = sim.level || '';
   }
 
   function renderSimulations() {
@@ -253,6 +297,12 @@
   function editQuestion(id) {
     const q = state.questions.find(item => item.questionId === id);
     if (!q) return;
+    fillQuestionForm(q);
+    document.querySelector('[data-tab="questions"]')?.click();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function fillQuestionForm(q) {
     qForm.elements.questionId.value = q.questionId || '';
     qForm.elements.simulationId.value = q.simulationId || '';
     qForm.elements.text.value = q.text || '';
@@ -262,8 +312,6 @@
     qForm.elements.category.value = q.category || '';
     qForm.elements.difficulty.value = q.difficulty || 'medium';
     qForm.elements.tags.value = (q.tags || []).join(', ');
-    document.querySelector('[data-tab="questions"]')?.click();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function deleteSimulation(id) {

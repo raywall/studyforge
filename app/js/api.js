@@ -92,6 +92,7 @@ const API = (() => {
       },
       questions: {
         list:   (simulationId = '') => request('GET', `/admin/questions${simulationId ? `?simulationId=${encodeURIComponent(simulationId)}` : ''}`),
+        generateAI: (data) => request('POST', '/admin/questions/generate-ai', data),
         save:   (data) => data.questionId
           ? request('PUT', `/admin/questions/${data.questionId}`, data)
           : request('POST', '/admin/questions', data),
