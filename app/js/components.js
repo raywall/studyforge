@@ -3,12 +3,14 @@
 // =============================================
 
 const Components = (() => {
+  const componentBaseUrl = new URL('../components/', document.currentScript?.src || window.location.href);
+
   // Load an HTML fragment and inject into selector
   async function load(selector, path) {
     const el = document.querySelector(selector);
     if (!el) return;
     try {
-      const res = await fetch(path);
+      const res = await fetch(new URL(path, componentBaseUrl));
       if (!res.ok) return;
       el.innerHTML = await res.text();
       // Run any inline scripts in the fragment
@@ -23,8 +25,8 @@ const Components = (() => {
   // Init common layout (header + sidebar)
   async function initLayout() {
     await Promise.all([
-      load('#app-header',  'components/header.html'),
-      load('#app-sidebar', 'components/sidebar.html'),
+      load('#app-header',  'header.html'),
+      load('#app-sidebar', 'sidebar.html'),
     ]);
     initHeader();
     initSidebar();
