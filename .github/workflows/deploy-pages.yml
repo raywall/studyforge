@@ -30,6 +30,17 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Generate runtime config
+        env:
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
+        run: |
+          API_BASE_URL="${API_BASE_URL:-https://exams.raysouz.studio/api/v1}"
+          cat > app/js/env.js <<EOF
+          window.__STUDYFORGE_ENV__ = {
+            API_BASE_URL: "${API_BASE_URL}"
+          };
+          EOF
+
       - name: Upload static frontend
         uses: actions/upload-pages-artifact@v3
         with:

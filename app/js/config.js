@@ -6,7 +6,7 @@ const Config = {
   // Lambda Function URL (replace after deploy)
   API_BASE_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:8090/api/v1'
-    : 'https://exams.raysouz.studio/api/v1',
+    : (window.__STUDYFORGE_ENV__?.API_BASE_URL || 'https://exams.raysouz.studio/api/v1'),
 
   APP_NAME: 'StudyForge',
   APP_VERSION: '1.0.0',
