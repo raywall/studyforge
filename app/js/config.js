@@ -2,6 +2,16 @@
 // App configuration — edit API_BASE_URL after deploy
 // =============================================
 
+const GO_ICON_SVG = `
+  <svg class="subject-icon subject-icon-go" viewBox="0 0 300 112" role="img" aria-label="Go" xmlns="http://www.w3.org/2000/svg">
+    <g fill="#00ADD8">
+      <path d="M8 52h72c4 0 6 3 4 7l-3 6H3c-3 0-4-2-2-5l4-6c1-1 2-2 3-2Z"/>
+      <path d="M27 36h67c4 0 6 3 4 7l-3 5H21c-3 0-4-2-2-5l4-5c1-1 2-2 4-2Z"/>
+      <path d="M45 69h45c4 0 6 3 4 7l-2 4H39c-3 0-4-2-2-5l4-4c1-1 2-2 4-2Z"/>
+    </g>
+    <text x="82" y="91" fill="#00ADD8" font-family="Arial Black, Arial, sans-serif" font-size="90" font-weight="900" font-style="italic">GO</text>
+  </svg>`;
+
 const Config = {
   // Lambda Function URL (replace after deploy)
   API_BASE_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -40,8 +50,8 @@ const Config = {
     aws:       '☁️',
     gcp:       '🌐',
     azure:     '🔷',
-    go:        '🐹',
-    golang:    '🐹',
+    go:        GO_ICON_SVG,
+    golang:    GO_ICON_SVG,
     datadog:   '🐶',
     kubernetes:'⎈',
     terraform: '🏗️',
