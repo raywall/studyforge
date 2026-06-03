@@ -82,13 +82,16 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: var(--space-5);
+  align-items: stretch;
 }
 
 .sim-card {
   background: var(--bg-card); border: 1px solid var(--border-color);
   border-radius: var(--radius-xl); overflow: hidden;
   transition: all var(--transition-base); cursor: pointer;
-  text-decoration: none; color: inherit; display: block;
+  text-decoration: none; color: inherit;
+  display: flex; flex-direction: column;
+  min-height: 100%;
 }
 .sim-card:hover { border-color: var(--color-primary); transform: translateY(-3px); box-shadow: var(--shadow-lg), 0 0 0 1px var(--color-primary-light); }
 
@@ -102,7 +105,7 @@
 .sim-card-banner.go     { background: linear-gradient(90deg, #00ADD8, #00D5FF); }
 .sim-card-banner.default{ background: linear-gradient(90deg, var(--color-primary), var(--color-secondary)); }
 
-.sim-card-body { padding: var(--space-5); }
+.sim-card-body { padding: var(--space-5); flex: 1; display: flex; flex-direction: column; }
 .sim-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-4); }
 .sim-card-icon { font-size: 2rem; }
 .sim-card-meta { display: flex; gap: var(--space-2); flex-wrap: wrap; }
@@ -122,6 +125,7 @@
   display: flex; align-items: center; justify-content: space-between;
   padding: var(--space-3) var(--space-5); border-top: 1px solid var(--border-color);
   background: var(--bg-secondary);
+  margin-top: auto;
 }
 .sim-card-footer-left { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-xs); color: var(--text-muted); }
 
