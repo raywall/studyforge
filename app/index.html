@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyForge — Plataforma de Certificação</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/login.css">
+  <style>
+    .form-section { display: none; }
+    .form-section.active { display: flex; flex-direction: column; gap: var(--space-4); animation: fadeIn 200ms ease; }
+    .form-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-4); }
+    @media(max-width:640px){ .form-row { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<div class="auth-page">
+
+  <!-- Left: Brand Panel -->
+  <aside class="auth-brand">
+    <div class="auth-brand-logo">
+      <div class="auth-brand-logo-mark">S</div>
+      <span class="auth-brand-name">StudyForge</span>
+    </div>
+
+    <div class="auth-brand-hero">
+      <div>
+        <h1 class="auth-brand-title">
+          Domine qualquer<br>
+          <span>certificação</span>
+        </h1>
+        <p class="auth-brand-subtitle">
+          Simulados adaptativos com feedback imediato, análise de desempenho e trilhas de estudo para certificações AWS, GCP, Azure, Go e muito mais.
+        </p>
+      </div>
+
+      <div class="auth-features">
+        <div class="auth-feature">
+          <span class="auth-feature-icon">🎯</span>
+          <span>Modo aprendizado com explicações detalhadas por questão</span>
+        </div>
+        <div class="auth-feature">
+          <span class="auth-feature-icon">⏱️</span>
+          <span>Modo treino com timer realista para preparação real</span>
+        </div>
+        <div class="auth-feature">
+          <span class="auth-feature-icon">📊</span>
+          <span>Histórico completo e análise dos seus pontos fracos</span>
+        </div>
+        <div class="auth-feature">
+          <span class="auth-feature-icon">🔁</span>
+          <span>Refaça quantas vezes quiser e acompanhe sua evolução</span>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:var(--text-xs);color:var(--text-muted);margin-bottom:var(--space-3)">SIMULADOS DISPONÍVEIS</div>
+        <div class="auth-cert-grid">
+          <span class="auth-cert-tag">AWS Solutions Architect</span>
+          <span class="auth-cert-tag">AWS Developer</span>
+          <span class="auth-cert-tag">AWS SysOps</span>
+          <span class="auth-cert-tag">GCP Associate</span>
+          <span class="auth-cert-tag">Azure Fundamentals</span>
+          <span class="auth-cert-tag">Go Developer</span>
+          <span class="auth-cert-tag">Kubernetes CKA</span>
+          <span class="auth-cert-tag">Terraform Associate</span>
+          <span class="auth-cert-tag">Datadog Fundamentals</span>
+          <span class="auth-cert-tag">AI Practitioner</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Right: Form Panel -->
+  <main class="auth-form-panel">
+    <div class="auth-form-wrapper">
+      <div style="display:flex;justify-content:flex-end">
+        <button class="btn btn-secondary btn-sm" type="button" data-theme-toggle><span>☾</span><span>Escuro</span></button>
+      </div>
+      <div class="auth-form-header">
+        <h2 class="auth-form-title">Bem-vindo 👋</h2>
+        <p class="auth-form-subtitle">Acesse sua conta ou crie uma nova gratuitamente</p>
+      </div>
+
+      <!-- Tab switcher -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login"    onclick="switchTab('login')">Entrar</button>
+        <button class="auth-tab"        id="tab-register" onclick="switchTab('register')">Criar conta</button>
+      </div>
+
+      <!-- Error alert -->
+      <div id="auth-error" class="alert alert-danger hidden"></div>
+      <div id="auth-success" class="alert alert-success hidden"></div>
+
+      <!-- Login form -->
+      <form id="form-login" class="auth-form form-section active" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label" for="login-email">E-mail</label>
+          <input class="form-input" type="email" id="login-email" placeholder="seu@email.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">Senha</label>
+          <div class="form-password-wrapper">
+            <input class="form-input" type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password">
+            <button type="button" class="btn-password-toggle" onclick="togglePassword('login-password', this)">👁</button>
+          </div>
+        </div>
+        <div class="form-options">
+          <label><input type="checkbox" id="remember-me"> Lembrar de mim</label>
+          <a href="#" class="form-link" onclick="switchTab('forgot'); return false;">Esqueci a senha</a>
+        </div>
+        <button class="btn btn-primary btn-full btn-lg" type="submit" id="btn-login">
+          Entrar
+        </button>
+      </form>
+
+      <!-- Register form -->
+      <form id="form-register" class="auth-form form-section" onsubmit="handleRegister(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="reg-name">Nome</label>
+            <input class="form-input" type="text" id="reg-name" placeholder="Seu nome" required autocomplete="given-name">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-lastname">Sobrenome</label>
+            <input class="form-input" type="text" id="reg-lastname" placeholder="Sobrenome" required autocomplete="family-name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-email">E-mail</label>
+          <input class="form-input" type="email" id="reg-email" placeholder="seu@email.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-password">Senha</label>
+          <div class="form-password-wrapper">
+            <input class="form-input" type="password" id="reg-password" placeholder="Mín. 8 caracteres" required minlength="8" autocomplete="new-password" oninput="checkPasswordStrength(this.value)">
+            <button type="button" class="btn-password-toggle" onclick="togglePassword('reg-password', this)">👁</button>
+          </div>
+          <div class="password-strength" id="strength-bars">
+            <div class="strength-bar" id="sb1"></div>
+            <div class="strength-bar" id="sb2"></div>
+            <div class="strength-bar" id="sb3"></div>
+            <div class="strength-bar" id="sb4"></div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="reg-city">Cidade</label>
+            <input class="form-input" type="text" id="reg-city" required autocomplete="address-level2">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-state">Estado</label>
+            <input class="form-input" type="text" id="reg-state" required autocomplete="address-level1">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="reg-country">País</label>
+            <input class="form-input" type="text" id="reg-country" required autocomplete="country-name" value="Brasil">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-phone">Telefone</label>
+            <input class="form-input" type="tel" id="reg-phone" required autocomplete="tel">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="reg-profession">Profissão</label>
+            <input class="form-input" type="text" id="reg-profession" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-education">Formação</label>
+            <input class="form-input" type="text" id="reg-education" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="reg-job-title">Cargo</label>
+            <input class="form-input" type="text" id="reg-job-title" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-company">Empresa</label>
+            <input class="form-input" type="text" id="reg-company" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-birth-date">Data de nascimento <span class="text-muted">(opcional)</span></label>
+          <input class="form-input" type="date" id="reg-birth-date" autocomplete="bday">
+        </div>
+        <button class="btn btn-primary btn-full btn-lg" type="submit" id="btn-register">
+          Criar conta grátis
+        </button>
+        <p class="auth-footer">
+          Ao criar uma conta, você concorda com os <a class="form-link" href="#">Termos de Uso</a>.
+        </p>
+      </form>
+
+      <form id="form-verify" class="auth-form form-section" onsubmit="handleVerifyEmail(event)">
+        <div class="form-group">
+          <label class="form-label" for="verify-email">E-mail</label>
+          <input class="form-input" type="email" id="verify-email" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="verify-code">Código de ativação</label>
+          <input class="form-input" type="text" id="verify-code" required inputmode="numeric" maxlength="6">
+        </div>
+        <button class="btn btn-primary btn-full btn-lg" type="submit" id="btn-verify">Ativar conta</button>
+        <button class="btn btn-ghost btn-full" type="button" onclick="switchTab('login')">Voltar para login</button>
+      </form>
+
+      <form id="form-forgot" class="auth-form form-section" onsubmit="handleForgotPassword(event)">
+        <div class="form-group">
+          <label class="form-label" for="forgot-email">E-mail</label>
+          <input class="form-input" type="email" id="forgot-email" required autocomplete="email">
+        </div>
+        <button class="btn btn-primary btn-full btn-lg" type="submit" id="btn-forgot">Gerar código</button>
+        <button class="btn btn-ghost btn-full" type="button" onclick="switchTab('login')">Voltar para login</button>
+      </form>
+
+      <form id="form-reset" class="auth-form form-section" onsubmit="handleResetPassword(event)">
+        <div class="form-group">
+          <label class="form-label" for="reset-email">E-mail</label>
+          <input class="form-input" type="email" id="reset-email" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reset-code">Código de recuperação</label>
+          <input class="form-input" type="text" id="reset-code" required inputmode="numeric" maxlength="6">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reset-password">Nova senha</label>
+          <input class="form-input" type="password" id="reset-password" required minlength="8" autocomplete="new-password">
+        </div>
+        <button class="btn btn-primary btn-full btn-lg" type="submit" id="btn-reset">Redefinir senha</button>
+      </form>
+
+      <div class="auth-footer">
+        StudyForge v1.0 &nbsp;·&nbsp; Todos os direitos reservados
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script>
+  // Redirect if already logged in
+  Auth.redirectIfLoggedIn();
+
+  function switchTab(tab) {
+    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+    document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+    ['login','register','verify','forgot','reset'].forEach(name => {
+      document.getElementById(`form-${name}`).classList.toggle('active', tab === name);
+    });
+    clearMessages();
+  }
+
+  function clearMessages() {
+    document.getElementById('auth-error').classList.add('hidden');
+    document.getElementById('auth-success').classList.add('hidden');
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('auth-error');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+
+  function showSuccess(msg) {
+    const el = document.getElementById('auth-success');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    clearMessages();
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const remember = document.getElementById('remember-me').checked;
+    const btn = document.getElementById('btn-login');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Entrando…';
+    try {
+      await Auth.login(email, password, remember);
+      window.location.href = 'dashboard.html';
+    } catch (err) {
+      showError(err.message || 'E-mail ou senha inválidos.');
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+    }
+  }
+
+  async function handleRegister(e) {
+    e.preventDefault();
+    clearMessages();
+    const firstName = document.getElementById('reg-name').value.trim();
+    const lastName  = document.getElementById('reg-lastname').value.trim();
+    const email    = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+    const btn = document.getElementById('btn-register');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Criando conta…';
+    try {
+      const res = await Auth.register({
+        firstName,
+        lastName,
+        name: `${firstName} ${lastName}`.trim(),
+        email,
+        password,
+        city: document.getElementById('reg-city').value.trim(),
+        state: document.getElementById('reg-state').value.trim(),
+        country: document.getElementById('reg-country').value.trim(),
+        profession: document.getElementById('reg-profession').value.trim(),
+        education: document.getElementById('reg-education').value.trim(),
+        jobTitle: document.getElementById('reg-job-title').value.trim(),
+        company: document.getElementById('reg-company').value.trim(),
+        phone: document.getElementById('reg-phone').value.trim(),
+        birthDate: document.getElementById('reg-birth-date').value,
+      });
+      document.getElementById('verify-email').value = email;
+      if (res.activationCode) document.getElementById('verify-code').value = res.activationCode;
+      switchTab('verify');
+      showSuccess(res.activationCode ? `Conta criada. Código local de ativação: ${res.activationCode}` : 'Conta criada. Verifique seu e-mail para ativar.');
+    } catch (err) {
+      showError(err.message || 'Erro ao criar conta. Tente novamente.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Criar conta grátis';
+    }
+  }
+
+  async function handleVerifyEmail(e) {
+    e.preventDefault();
+    clearMessages();
+    const btn = document.getElementById('btn-verify');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Ativando…';
+    try {
+      await Auth.verifyEmail(document.getElementById('verify-email').value.trim(), document.getElementById('verify-code').value.trim());
+      window.location.href = 'dashboard.html';
+    } catch (err) {
+      showError(err.message || 'Erro ao ativar conta.');
+      btn.disabled = false;
+      btn.textContent = 'Ativar conta';
+    }
+  }
+
+  async function handleForgotPassword(e) {
+    e.preventDefault();
+    clearMessages();
+    const email = document.getElementById('forgot-email').value.trim();
+    const btn = document.getElementById('btn-forgot');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Gerando…';
+    try {
+      const res = await Auth.forgotPassword(email);
+      document.getElementById('reset-email').value = email;
+      if (res.resetCode) document.getElementById('reset-code').value = res.resetCode;
+      switchTab('reset');
+      showSuccess(res.resetCode ? `Código local de recuperação: ${res.resetCode}` : res.message);
+    } catch (err) {
+      showError(err.message || 'Erro ao recuperar senha.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Gerar código';
+    }
+  }
+
+  async function handleResetPassword(e) {
+    e.preventDefault();
+    clearMessages();
+    const btn = document.getElementById('btn-reset');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Redefinindo…';
+    try {
+      await Auth.resetPassword(
+        document.getElementById('reset-email').value.trim(),
+        document.getElementById('reset-code').value.trim(),
+        document.getElementById('reset-password').value
+      );
+      switchTab('login');
+      showSuccess('Senha redefinida. Entre com a nova senha.');
+    } catch (err) {
+      showError(err.message || 'Erro ao redefinir senha.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Redefinir senha';
+    }
+  }
+
+  function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+    else                           { input.type = 'password'; btn.textContent = '👁'; }
+  }
+
+  function checkPasswordStrength(val) {
+    const bars = ['sb1','sb2','sb3','sb4'];
+    bars.forEach(id => { document.getElementById(id).className = 'strength-bar'; });
+    let score = 0;
+    if (val.length >= 8)         score++;
+    if (/[A-Z]/.test(val))       score++;
+    if (/[0-9]/.test(val))       score++;
+    if (/[^A-Za-z0-9]/.test(val))score++;
+    const cls = score <= 1 ? 'weak' : score <= 2 ? 'medium' : 'strong';
+    for (let i = 0; i < score; i++) document.getElementById(bars[i]).classList.add(cls);
+  }
+
+</script>
+</body>
+</html>

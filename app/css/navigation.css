@@ -1,0 +1,137 @@
+/* =============================================
+   Header & Sidebar Navigation
+   ============================================= */
+
+/* Header */
+.app-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--space-6); height: var(--header-height);
+  background: color-mix(in srgb, var(--bg-secondary) 86%, transparent); border-bottom: 1px solid var(--border-light);
+  position: sticky; top: 0; z-index: 40; backdrop-filter: blur(12px);
+}
+.header-logo {
+  display: flex; align-items: center; gap: var(--space-3);
+  font-size: var(--text-lg); font-weight: var(--weight-bold);
+  text-decoration: none; color: var(--text-primary);
+}
+.header-logo-mark {
+  width: 32px; height: 32px; border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--text-base); font-weight: var(--weight-bold); color: #fff;
+  box-shadow: 0 0 16px var(--color-primary-glow);
+}
+.header-left  { display: flex; align-items: center; gap: var(--space-4); }
+.header-right { display: flex; align-items: center; gap: var(--space-3); }
+.header-theme-toggle {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  min-width: 94px;
+}
+.header-search {
+  display: flex; align-items: center; gap: var(--space-2);
+  background: var(--bg-surface); border: 1px solid var(--border-color);
+  border-radius: var(--radius-md); padding: var(--space-2) var(--space-3);
+  width: 240px; font-size: var(--text-sm); color: var(--text-muted);
+  transition: all var(--transition-base);
+}
+.header-search:focus-within {
+  border-color: var(--color-primary); color: var(--text-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+.header-search input { background: none; border: none; outline: none; width: 100%; color: var(--text-primary); font-size: var(--text-sm); }
+.header-search input::placeholder { color: var(--text-muted); }
+
+/* User avatar */
+.user-avatar {
+  width: 36px; height: 36px; border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--text-sm); font-weight: var(--weight-semibold); color: #fff;
+  cursor: pointer; border: 2px solid var(--border-light);
+  transition: border-color var(--transition-base);
+}
+.user-avatar:hover { border-color: var(--color-primary); }
+
+/* Dropdown menu */
+.dropdown { position: relative; }
+.dropdown-menu {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: var(--bg-card); border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg); padding: var(--space-2);
+  min-width: 200px; box-shadow: var(--shadow-xl);
+  opacity: 0; pointer-events: none; transform: translateY(-4px);
+  transition: all var(--transition-fast); z-index: 50;
+}
+.dropdown.open .dropdown-menu { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.dropdown-item {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) var(--space-3); border-radius: var(--radius-md);
+  font-size: var(--text-sm); color: var(--text-secondary);
+  cursor: pointer; transition: all var(--transition-fast);
+}
+.dropdown-item:hover { background: var(--bg-surface); color: var(--text-primary); }
+.dropdown-item.danger:hover { background: var(--color-danger-light); color: var(--color-danger); }
+.dropdown-divider { border-top: 1px solid var(--border-color); margin: var(--space-2) 0; }
+
+/* Sidebar */
+.app-sidebar {
+  background: color-mix(in srgb, var(--bg-secondary) 90%, transparent); border-right: 1px solid var(--border-light);
+  width: var(--sidebar-width); height: calc(100vh - var(--header-height));
+  position: sticky; top: var(--header-height); overflow-y: auto;
+  display: flex; flex-direction: column;
+}
+.sidebar-section { padding: var(--space-4) var(--space-3); }
+.sidebar-section + .sidebar-section { border-top: 1px solid var(--border-color); }
+.sidebar-section-title {
+  font-size: 10px; font-weight: var(--weight-semibold);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-muted); padding: 0 var(--space-3);
+  margin-bottom: var(--space-2);
+}
+.sidebar-nav { display: flex; flex-direction: column; gap: 2px; }
+.sidebar-link {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-2) var(--space-3); border-radius: var(--radius-md);
+  color: var(--text-secondary); font-size: var(--text-sm);
+  font-weight: var(--weight-medium); cursor: pointer;
+  transition: all var(--transition-fast); text-decoration: none;
+  position: relative;
+}
+.sidebar-link:hover  { background: var(--bg-surface); color: var(--text-primary); }
+.sidebar-link.active { background: var(--color-primary-light); color: var(--color-primary); }
+.sidebar-link.active::before {
+  content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 60%; background: var(--color-primary);
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+}
+.sidebar-icon { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.8; }
+.sidebar-badge {
+  margin-left: auto; background: var(--color-primary-light);
+  color: var(--color-primary); font-size: 10px; font-weight: var(--weight-semibold);
+  padding: 1px 6px; border-radius: var(--radius-full);
+}
+
+.sidebar-footer { margin-top: auto; padding: var(--space-4) var(--space-3); border-top: 1px solid var(--border-color); }
+.sidebar-user {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-2) var(--space-3); border-radius: var(--radius-md);
+  cursor: pointer; transition: background var(--transition-fast);
+}
+.sidebar-user:hover { background: var(--bg-surface); }
+.sidebar-user-info { flex: 1; overflow: hidden; }
+.sidebar-user-name { font-size: var(--text-sm); font-weight: var(--weight-medium); truncate; }
+.sidebar-user-email { font-size: var(--text-xs); color: var(--text-muted); }
+
+/* Mobile hamburger */
+.btn-menu {
+  display: none; background: none; border: none;
+  color: var(--text-secondary); padding: var(--space-2); cursor: pointer;
+  border-radius: var(--radius-md);
+}
+@media (max-width: 1024px) {
+  .btn-menu { display: flex; align-items: center; }
+  .header-search { width: 180px; }
+}
+@media (max-width: 640px) {
+  .header-search { display: none; }
+}

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulado — StudyForge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/navigation.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/results.css">
+  <style>
+    .sim-detail-banner { height: 8px; }
+    .sim-detail-layout { display: grid; grid-template-columns: 1fr 340px; gap: var(--space-6); }
+    .sim-detail-sidebar { display: flex; flex-direction: column; gap: var(--space-4); }
+    @media(max-width:1024px){ .sim-detail-layout { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div id="app-header"></div>
+  <div id="app-sidebar"></div>
+
+  <main class="app-main">
+    <div class="page-content animate-fade-in">
+
+      <!-- Breadcrumb -->
+      <nav style="display:flex;align-items:center;gap:var(--space-2);font-size:var(--text-sm);color:var(--text-muted);margin-bottom:var(--space-6)">
+        <a href="dashboard.html" style="color:var(--text-muted);text-decoration:none" class="form-link">Dashboard</a>
+        <span>›</span>
+        <span id="page-breadcrumb" style="color:var(--text-primary)">—</span>
+      </nav>
+
+      <!-- Banner -->
+      <div id="sim-banner" class="sim-detail-banner sim-card-banner default" style="border-radius:var(--radius-xl) var(--radius-xl) 0 0"></div>
+
+      <div class="card" style="border-radius:0 0 var(--radius-xl) var(--radius-xl);border-top:none;margin-bottom:var(--space-6)">
+        <div class="card-body">
+          <div style="display:flex;align-items:flex-start;gap:var(--space-5)">
+            <div id="sim-icon" style="font-size:3rem;line-height:1"></div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-2)">
+                <div id="sim-level"></div>
+                <span style="font-size:var(--text-sm);color:var(--text-muted)" id="sim-subject"></span>
+              </div>
+              <h1 style="font-size:var(--text-2xl);font-weight:700;margin-bottom:var(--space-3)" id="sim-title">—</h1>
+              <p style="font-size:var(--text-sm);color:var(--text-secondary);line-height:1.7" id="sim-desc"></p>
+              <div id="sim-tags" style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-3)"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:var(--space-2);align-items:flex-end">
+              <!-- Actions -->
+              <button class="btn btn-primary hidden" id="btn-generate">✦ Gerar Simulado</button>
+              <button class="btn btn-primary hidden" id="btn-start">▶ Iniciar</button>
+              <button class="btn btn-secondary hidden" id="btn-retry">↺ Nova tentativa</button>
+              <button class="btn btn-warning hidden" id="btn-continue" style="background:var(--color-warning);color:#000">→ Continuar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail layout -->
+      <div class="sim-detail-layout">
+        <!-- Left column -->
+        <div style="display:flex;flex-direction:column;gap:var(--space-5)">
+
+          <!-- Spec card -->
+          <div class="card">
+            <div class="card-header"><strong>Especificações</strong></div>
+            <div class="card-body">
+              <div class="grid-3" style="gap:var(--space-4)">
+                <div class="result-stat">
+                  <div class="result-stat-value" id="sim-questions">—</div>
+                  <div class="result-stat-label">Questões</div>
+                </div>
+                <div class="result-stat">
+                  <div class="result-stat-value" id="sim-time">—</div>
+                  <div class="result-stat-label">Tempo limite</div>
+                </div>
+                <div class="result-stat">
+                  <div class="result-stat-value" id="sim-pass">—</div>
+                  <div class="result-stat-label">Para aprovação</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Categories distribution -->
+          <div class="card" id="categories-card">
+            <div class="card-header"><strong>Distribuição de Conteúdo</strong></div>
+            <div class="card-body">
+              <div id="categories-list" class="category-breakdown"></div>
+            </div>
+          </div>
+
+          <!-- Attempts history -->
+          <div class="card">
+            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+              <strong>Histórico de Tentativas</strong>
+            </div>
+            <div class="card-body" style="padding:0;overflow-x:auto">
+              <div id="attempts-list" style="padding:var(--space-4)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right column -->
+        <div class="sim-detail-sidebar">
+          <!-- My performance -->
+          <div class="card">
+            <div class="card-header"><strong>Meu Desempenho</strong></div>
+            <div class="card-body" id="my-stats"></div>
+          </div>
+
+          <!-- Modes explanation -->
+          <div class="card">
+            <div class="card-header"><strong>Modos de Simulado</strong></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:var(--space-4)">
+              <div>
+                <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2)">
+                  <span class="badge badge-success">📖 Aprendizado</span>
+                </div>
+                <p style="font-size:var(--text-xs);color:var(--text-secondary);line-height:1.6">Sem contagem de tempo. Após cada resposta, veja imediatamente se acertou e leia a explicação detalhada.</p>
+              </div>
+              <hr class="divider">
+              <div>
+                <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2)">
+                  <span class="badge badge-info">🏋️ Treino</span>
+                </div>
+                <p style="font-size:var(--text-xs);color:var(--text-secondary);line-height:1.6">Timer ativo como em uma prova real. Respostas e explicações reveladas apenas após finalizar ou desistir.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Mode selection modal -->
+<div class="modal-overlay" id="mode-modal">
+  <div class="modal">
+    <h3 class="modal-title">Escolha o modo</h3>
+    <p style="color:var(--text-secondary);font-size:var(--text-sm);margin-bottom:var(--space-6)">Como deseja realizar esta tentativa?</p>
+    <div style="display:grid;gap:var(--space-3)">
+      <button class="btn btn-secondary" data-mode="learning" style="justify-content:flex-start;gap:var(--space-4);padding:var(--space-4)">
+        <span style="font-size:1.5rem">📖</span>
+        <div style="text-align:left">
+          <div style="font-weight:600">Modo Aprendizado</div>
+          <div style="font-size:var(--text-xs);color:var(--text-muted);margin-top:2px">Sem timer · Feedback imediato por questão</div>
+        </div>
+      </button>
+      <button class="btn btn-secondary" data-mode="training" style="justify-content:flex-start;gap:var(--space-4);padding:var(--space-4)">
+        <span style="font-size:1.5rem">🏋️</span>
+        <div style="text-align:left">
+          <div style="font-weight:600">Modo Treino</div>
+          <div style="font-size:var(--text-xs);color:var(--text-muted);margin-top:2px">Timer ativo · Resultados ao final</div>
+        </div>
+      </button>
+    </div>
+    <button class="btn btn-ghost btn-full mt-4" data-close-modal="mode-modal">Cancelar</button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/config.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/components.js"></script>
+<script src="js/simulation.js"></script>
+</body>
+</html>

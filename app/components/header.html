@@ -1,0 +1,56 @@
+<header class="app-header">
+  <div class="header-left">
+    <button class="btn-menu" aria-label="Menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6"  x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <a href="dashboard.html" class="header-logo">
+      <div class="header-logo-mark">S</div>
+      <span>StudyForge</span>
+    </a>
+    <div class="header-search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="search" placeholder="Buscar simulado…" id="global-search">
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn btn-secondary btn-sm header-theme-toggle" type="button" data-theme-toggle>
+      <span>☾</span><span>Escuro</span>
+    </button>
+    <div class="dropdown user-dropdown">
+      <div class="user-avatar" role="button" tabindex="0"></div>
+      <div class="dropdown-menu">
+        <div style="padding:var(--space-3) var(--space-3) var(--space-2)">
+          <div style="font-size:var(--text-sm);font-weight:600" class="header-user-name">—</div>
+          <div style="font-size:var(--text-xs);color:var(--text-muted)" class="header-user-email">—</div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="window.location.href='dashboard.html'">
+          <span>🏠</span> Dashboard
+        </div>
+        <div class="dropdown-item" onclick="window.location.href='profile.html'">
+          <span>🔐</span> Perfil e senha
+        </div>
+        <div class="dropdown-item hidden" data-admin-only onclick="window.location.href='admin.html'">
+          <span>✎</span> Administração
+        </div>
+        <div class="dropdown-item danger" data-action="logout">
+          <span>↩</span> Sair
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+<script>
+  // Populate email in dropdown
+  const _u = Auth.getUser();
+  if (_u) {
+    const emailEl = document.querySelector('.header-user-email');
+    if (emailEl) emailEl.textContent = _u.email;
+  }
+</script>

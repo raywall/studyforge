@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — StudyForge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/navigation.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<div class="app-layout">
+  <div id="app-header"></div>
+  <div id="app-sidebar"></div>
+
+  <main class="app-main">
+    <div class="page-content animate-fade-in">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Administração</h1>
+          <p class="page-subtitle">Gerencie configurações de simulados, tópicos e questões.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary btn-sm" id="btn-reset-forms">Limpar</button>
+          <button class="btn btn-primary btn-sm" id="btn-refresh">Atualizar</button>
+        </div>
+      </div>
+
+      <div class="admin-tabs">
+        <button class="filter-chip active" data-tab="simulations">Simulados</button>
+        <button class="filter-chip" data-tab="questions">Questões</button>
+      </div>
+
+      <section class="admin-panel" data-panel="simulations">
+        <form class="admin-form card" id="simulation-form">
+          <div class="card-header"><strong>Configuração do simulado</strong></div>
+          <div class="card-body admin-form-grid">
+            <input type="hidden" name="simulationId">
+            <div class="form-group span-2">
+              <label class="form-label">Título</label>
+              <input class="form-input" name="title" required placeholder="AWS Cloud Practitioner">
+            </div>
+            <div class="form-group span-2">
+              <label class="form-label">Descrição</label>
+              <textarea class="form-input" name="description" rows="3" placeholder="Resumo do exame e objetivo do simulado"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Plataforma / assunto</label>
+              <input class="form-input" name="subject" required placeholder="aws, gcp, ai, datadog, go">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nível</label>
+              <input class="form-input" name="level" required placeholder="practitioner, associate, advanced">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Questões</label>
+              <input class="form-input" name="questionCount" type="number" min="1" required value="10">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tempo máximo em minutos</label>
+              <input class="form-input" name="timeLimitMinutes" type="number" min="0" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Aprovação (%)</label>
+              <input class="form-input" name="passingScore" type="number" min="1" max="100" value="72">
+            </div>
+            <label class="admin-toggle">
+              <input type="checkbox" name="active" checked>
+              <span>Ativo no catálogo</span>
+            </label>
+            <label class="admin-toggle">
+              <input type="checkbox" name="isFree" checked>
+              <span>Disponível grátis</span>
+            </label>
+            <div class="form-group span-2">
+              <label class="form-label">Tópicos e percentuais</label>
+              <textarea class="form-input" name="categories" rows="4" placeholder="Arquitetura resiliente:30&#10;Segurança:40&#10;Custos:30"></textarea>
+              <div class="form-hint">Uma linha por tópico no formato nome:percentual.</div>
+            </div>
+            <div class="form-group span-2">
+              <label class="form-label">Tags</label>
+              <input class="form-input" name="tags" placeholder="aws, cloud, associate">
+            </div>
+          </div>
+          <div class="card-footer admin-actions">
+            <button class="btn btn-primary" type="submit">Salvar simulado</button>
+          </div>
+        </form>
+
+        <div class="card">
+          <div class="card-header"><strong>Simulados cadastrados</strong></div>
+          <div class="card-body admin-list" id="simulations-admin-list"></div>
+        </div>
+      </section>
+
+      <section class="admin-panel hidden" data-panel="questions">
+        <form class="admin-form card" id="question-form">
+          <div class="card-header"><strong>Questão</strong></div>
+          <div class="card-body admin-form-grid">
+            <input type="hidden" name="questionId">
+            <div class="form-group span-2">
+              <label class="form-label">Simulado</label>
+              <select class="form-select" name="simulationId" required></select>
+            </div>
+            <div class="form-group span-2">
+              <label class="form-label">Enunciado</label>
+              <textarea class="form-input" name="text" rows="5" required></textarea>
+            </div>
+            <div class="form-group span-2">
+              <label class="form-label">Alternativas</label>
+              <textarea class="form-input" name="options" rows="5" required placeholder="Uma alternativa por linha"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Alternativas corretas</label>
+              <input class="form-input" name="correctOptionIndexes" required value="1" placeholder="Ex: 1 ou 1,3">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Dificuldade</label>
+              <select class="form-select" name="difficulty">
+                <option value="easy">Básica</option>
+                <option value="medium">Média</option>
+                <option value="hard">Avançada</option>
+              </select>
+            </div>
+            <div class="form-group span-2">
+              <label class="form-label">Tópico</label>
+              <input class="form-input" name="category" placeholder="Segurança, Concorrência, IAM">
+            </div>
+            <div class="form-group span-2">
+              <label class="form-label">Explicação</label>
+              <textarea class="form-input" name="explanation" rows="4"></textarea>
+            </div>
+            <div class="form-group span-2">
+              <label class="form-label">Tags</label>
+              <input class="form-input" name="tags" placeholder="s3, iam, goroutines">
+            </div>
+          </div>
+          <div class="card-footer admin-actions">
+            <button class="btn btn-primary" type="submit">Salvar questão</button>
+          </div>
+        </form>
+
+        <div class="card">
+          <div class="card-header admin-table-header">
+            <strong>Banco de questões</strong>
+            <select class="form-select" id="question-filter"></select>
+          </div>
+          <div class="card-body admin-list" id="questions-admin-list"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/config.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/components.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

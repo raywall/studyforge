@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — StudyForge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/navigation.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+<div class="app-layout">
+  <div id="app-header"></div>
+  <div id="app-sidebar"></div>
+
+  <main class="app-main">
+    <div class="page-content animate-fade-in">
+
+      <!-- Page header -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">Bem-vindo de volta! Pronto para estudar?</p>
+        </div>
+        <div class="page-actions">
+          <a class="btn btn-secondary btn-sm hidden" href="admin.html" data-admin-only>Administração</a>
+          <button class="btn btn-secondary btn-sm" onclick="window.location.reload()">↻ Atualizar</button>
+        </div>
+      </div>
+
+      <!-- Stats cards -->
+      <div class="stats-grid">
+        <div class="stats-card">
+          <div class="stats-card-icon purple">📋</div>
+          <div class="stats-card-value" id="stat-simulations">—</div>
+          <div class="stats-card-label">Simulados gerados</div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-card-icon blue">🎯</div>
+          <div class="stats-card-value" id="stat-attempts">—</div>
+          <div class="stats-card-label">Total de tentativas</div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-card-icon green">📊</div>
+          <div class="stats-card-value" id="stat-avg-score">—</div>
+          <div class="stats-card-label">Média de acertos</div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-card-icon yellow">✅</div>
+          <div class="stats-card-value" id="stat-passed">—</div>
+          <div class="stats-card-label">Aprovações</div>
+        </div>
+      </div>
+
+      <!-- Two column layout -->
+      <div class="dashboard-grid">
+
+        <!-- Catalog -->
+        <div class="dashboard-panel catalog-panel">
+          <div class="section-header">
+            <h2 class="section-title">Catálogo de Simulados</h2>
+          </div>
+
+          <!-- Filters -->
+          <div class="filters-bar" id="catalog-filters">
+            <div class="filter-search">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+              <input type="search" placeholder="Buscar…">
+            </div>
+          </div>
+
+          <div class="simulations-grid" id="simulations-grid">
+            <!-- Loading skeleton -->
+            <div class="card" style="height:200px;animation:pulse 1.5s ease infinite;background:var(--bg-card)"></div>
+            <div class="card" style="height:200px;animation:pulse 1.5s ease infinite 0.2s;background:var(--bg-card)"></div>
+            <div class="card" style="height:200px;animation:pulse 1.5s ease infinite 0.4s;background:var(--bg-card)"></div>
+          </div>
+        </div>
+
+        <!-- Sidebar: My Simulations -->
+        <div class="dashboard-panel mysims-panel">
+          <div class="section-header">
+            <h2 class="section-title" id="my-sims">Meus Simulados</h2>
+            <a href="dashboard.html" class="btn btn-ghost btn-sm">Ver todos</a>
+          </div>
+          <div id="my-simulations-list">
+            <div style="height:80px;background:var(--bg-card);border-radius:var(--radius-lg);animation:pulse 1.5s ease infinite;border:1px solid var(--border-color)"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="js/config.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/components.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

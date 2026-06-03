@@ -1,0 +1,11 @@
+docs/
+logs/
+.build/
+.pids/
+.terraform/
+.terraform.lock.hcl
+back/bootstrap
+back/bootstrap.zip
+.DS_Store
+.assets
+EVOLUTION.md

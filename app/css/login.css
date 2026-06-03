@@ -1,0 +1,177 @@
+/* =============================================
+   Login / Auth Page
+   ============================================= */
+
+.auth-page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+/* Left panel — brand side */
+.auth-brand {
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-12) var(--space-10);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative orbs */
+.auth-brand::before,
+.auth-brand::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.auth-brand::before {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(99,102,241,0.15), transparent 70%);
+  top: -100px; left: -100px;
+}
+.auth-brand::after {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(139,92,246,0.12), transparent 70%);
+  bottom: -80px; right: -80px;
+}
+
+.auth-brand-logo {
+  display: flex; align-items: center; gap: var(--space-3);
+  margin-bottom: auto;
+}
+.auth-brand-logo-mark {
+  width: 44px; height: 44px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--text-xl); font-weight: var(--weight-bold); color: #fff;
+  box-shadow: 0 0 24px var(--color-primary-glow);
+}
+.auth-brand-name {
+  font-size: var(--text-xl); font-weight: var(--weight-bold);
+  background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.auth-brand-hero { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: var(--space-8); }
+.auth-brand-title {
+  font-size: var(--text-4xl); font-weight: var(--weight-bold); line-height: 1.2;
+}
+.auth-brand-title span {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.auth-brand-subtitle { font-size: var(--text-base); color: var(--text-secondary); line-height: 1.7; max-width: 380px; }
+
+.auth-features { display: flex; flex-direction: column; gap: var(--space-4); }
+.auth-feature {
+  display: flex; align-items: center; gap: var(--space-3);
+  font-size: var(--text-sm); color: var(--text-secondary);
+}
+.auth-feature-icon {
+  width: 36px; height: 36px; flex-shrink: 0;
+  background: var(--color-primary-light); border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--text-base);
+}
+
+/* Grid of certification logos */
+.auth-cert-grid {
+  display: flex; flex-wrap: wrap; gap: var(--space-2);
+}
+.auth-cert-tag {
+  background: var(--bg-surface); border: 1px solid var(--border-light);
+  border-radius: var(--radius-md); padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs); font-weight: var(--weight-medium); color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+.auth-cert-tag:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+/* Right panel — form side */
+.auth-form-panel {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: var(--space-12) var(--space-10);
+  background: var(--bg-primary);
+}
+
+.auth-form-wrapper {
+  width: 100%; max-width: 400px;
+  display: flex; flex-direction: column; gap: var(--space-6);
+  animation: slideUp var(--transition-slow) ease;
+}
+
+.auth-form-header { text-align: center; }
+.auth-form-title { font-size: var(--text-2xl); font-weight: var(--weight-bold); margin-bottom: var(--space-2); }
+.auth-form-subtitle { font-size: var(--text-sm); color: var(--text-secondary); }
+
+/* Tab switcher */
+.auth-tabs {
+  display: flex; background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg); padding: 4px; gap: 4px;
+}
+.auth-tab {
+  flex: 1; padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md); font-size: var(--text-sm);
+  font-weight: var(--weight-medium); color: var(--text-secondary);
+  cursor: pointer; transition: all var(--transition-fast);
+  text-align: center; border: none; background: none;
+}
+.auth-tab.active {
+  background: var(--color-primary); color: #fff;
+  box-shadow: 0 2px 8px var(--color-primary-glow);
+}
+
+/* Form */
+.auth-form { display: flex; flex-direction: column; gap: var(--space-4); }
+.form-password-wrapper { position: relative; }
+.form-password-wrapper .form-input { padding-right: 44px; }
+.btn-password-toggle {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: var(--text-muted);
+  display: flex; align-items: center; transition: color var(--transition-fast);
+}
+.btn-password-toggle:hover { color: var(--text-primary); }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+.form-options {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: var(--text-sm);
+}
+.form-options label { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; color: var(--text-secondary); }
+.form-options input[type="checkbox"] { accent-color: var(--color-primary); }
+.form-link { color: var(--color-primary); text-decoration: none; font-size: var(--text-sm); }
+.form-link:hover { text-decoration: underline; }
+
+.auth-divider {
+  display: flex; align-items: center; gap: var(--space-3);
+  color: var(--text-muted); font-size: var(--text-xs);
+}
+.auth-divider::before, .auth-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border-color);
+}
+
+.auth-footer {
+  text-align: center; font-size: var(--text-xs); color: var(--text-muted);
+}
+
+/* Password strength */
+.password-strength { display: flex; gap: 4px; height: 3px; }
+.strength-bar {
+  flex: 1; border-radius: var(--radius-full);
+  background: var(--border-color); transition: background var(--transition-base);
+}
+.strength-bar.weak   { background: var(--color-danger); }
+.strength-bar.medium { background: var(--color-warning); }
+.strength-bar.strong { background: var(--color-success); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .auth-page { grid-template-columns: 1fr; }
+  .auth-brand { display: none; }
+  .auth-form-panel { padding: var(--space-8) var(--space-6); }
+}
