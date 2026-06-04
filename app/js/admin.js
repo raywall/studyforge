@@ -526,6 +526,7 @@
     preview.innerHTML = value.trim()
       ? Utils.renderMarkdown(value)
       : '<p class="markdown-empty">A visualização aparecerá aqui.</p>';
+    if (!preview.classList.contains('hidden')) Utils.renderMermaid(preview);
   }
 
   function updateMarkdownLint() {

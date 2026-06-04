@@ -128,7 +128,8 @@ const Utils = {
 
     const blocks = [];
     let paragraph = [];
-    let list = [];
+    let list = null;
+    let codeBlock = null;
 
     const flushParagraph = () => {
       if (!paragraph.length) return;
@@ -136,38 +137,102 @@ const Utils = {
       paragraph = [];
     };
     const flushList = () => {
-      if (!list.length) return;
-      blocks.push(`<ul>${list.map(item => `<li>${renderInline(item)}</li>`).join('')}</ul>`);
-      list = [];
+      if (!list?.items?.length) return;
+      blocks.push(`<${list.type}>${list.items.map(item => `<li>${renderInline(item)}</li>`).join('')}</${list.type}>`);
+      list = null;
+    };
+    const flushCodeBlock = () => {
+      if (!codeBlock) return;
+      const code = codeBlock.lines.join('\n');
+      const lang = codeBlock.lang.toLowerCase();
+      if (lang === 'mermaid') {
+        blocks.push(`<div class="mermaid">${Utils.escapeHtml(code)}</div>`);
+      } else {
+        blocks.push(`<pre><code${lang ? ` class="language-${Utils.escapeHtml(lang)}"` : ''}>${Utils.escapeHtml(code)}</code></pre>`);
+      }
+      codeBlock = null;
     };
 
     text.split('\n').forEach(line => {
       const trimmed = line.trim();
+      const fence = trimmed.match(/^```([a-zA-Z0-9_-]*)\s*$/);
+      if (fence) {
+        if (codeBlock) {
+          flushCodeBlock();
+        } else {
+          flushParagraph();
+          flushList();
+          codeBlock = { lang: fence[1] || '', lines: [] };
+        }
+        return;
+      }
+      if (codeBlock) {
+        codeBlock.lines.push(line);
+        return;
+      }
       if (!trimmed) {
         flushParagraph();
         flushList();
         return;
       }
-      const heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
+      const heading = trimmed.match(/^(#{1,6})\s+(.+)$/);
       if (heading) {
         flushParagraph();
         flushList();
-        const level = heading[1].length + 2;
+        const level = heading[1].length;
         blocks.push(`<h${level}>${renderInline(heading[2])}</h${level}>`);
         return;
       }
       const bullet = trimmed.match(/^[-*]\s+(.+)$/);
       if (bullet) {
         flushParagraph();
-        list.push(bullet[1]);
+        if (!list || list.type !== 'ul') {
+          flushList();
+          list = { type: 'ul', items: [] };
+        }
+        list.items.push(bullet[1]);
+        return;
+      }
+      const ordered = trimmed.match(/^\d+[.)]\s+(.+)$/);
+      if (ordered) {
+        flushParagraph();
+        if (!list || list.type !== 'ol') {
+          flushList();
+          list = { type: 'ol', items: [] };
+        }
+        list.items.push(ordered[1]);
         return;
       }
       flushList();
       paragraph.push(trimmed);
     });
+    flushCodeBlock();
     flushParagraph();
     flushList();
     return `<div class="markdown-content">${blocks.join('')}</div>`;
+  },
+
+  renderMermaid(root = document) {
+    if (!window.mermaid) return;
+    const nodes = [...root.querySelectorAll('.mermaid:not([data-processed="true"])')];
+    if (!nodes.length) return;
+    try {
+      if (!window.__studyforgeMermaidReady) {
+        window.mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: 'strict',
+          theme: document.documentElement.dataset.theme === 'light' ? 'default' : 'dark',
+        });
+        window.__studyforgeMermaidReady = true;
+      }
+      if (window.mermaid.run) {
+        window.mermaid.run({ nodes });
+      } else {
+        window.mermaid.init(undefined, nodes);
+      }
+    } catch (err) {
+      console.warn('Erro ao renderizar Mermaid', err);
+    }
   },
 
   // Level label

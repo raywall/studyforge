@@ -141,7 +141,7 @@
       const icons  = { correct: '✓', wrong: '✗', skipped: '—' };
       return `
       <div class="review-item ${result}">
-        <div class="review-item-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="review-item-header" onclick="this.parentElement.classList.toggle('open'); Utils.renderMermaid(this.parentElement)">
           <span class="review-item-number">${icons[result]}</span>
           <span class="review-item-text">${i+1}. ${q.text?.substring(0,80)}${q.text?.length>80?'…':''}</span>
           <span class="review-item-icon">▾</span>

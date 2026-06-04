@@ -244,6 +244,7 @@
       <div class="explanation-title">💡 Explicação</div>
       ${Utils.renderMarkdown(q.explanation || 'A opção correta é ' + answerLetters(correct).join(', ') + '.')}`;
     expl.style.display = 'block';
+    Utils.renderMermaid(expl);
   }
 
   // ── Flag ──────────────────────────────────────────────

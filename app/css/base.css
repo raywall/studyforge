@@ -211,18 +211,29 @@ body {
   display: grid;
   gap: var(--space-3);
 }
+.markdown-content h1,
+.markdown-content h2,
 .markdown-content h3,
 .markdown-content h4,
-.markdown-content h5 {
+.markdown-content h5,
+.markdown-content h6 {
   color: var(--text-primary);
   font-weight: var(--weight-semibold);
   line-height: 1.35;
 }
+.markdown-content h1 { font-size: var(--text-xl); }
+.markdown-content h2 { font-size: var(--text-lg); }
+.markdown-content h3 { font-size: var(--text-base); }
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 { font-size: var(--text-sm); }
 .markdown-content p,
-.markdown-content ul {
+.markdown-content ul,
+.markdown-content ol {
   margin: 0;
 }
-.markdown-content ul {
+.markdown-content ul,
+.markdown-content ol {
   padding-left: 1.2rem;
 }
 .markdown-content li + li {
@@ -239,6 +250,32 @@ body {
   background: var(--bg-card);
   color: var(--text-primary);
   font-size: 0.92em;
+}
+.markdown-content pre {
+  margin: 0;
+  padding: var(--space-4);
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+}
+.markdown-content pre code {
+  padding: 0;
+  background: transparent;
+  white-space: pre;
+}
+.markdown-content .mermaid {
+  overflow-x: auto;
+  padding: var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+}
+.markdown-content .mermaid svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
 }
 .markdown-content img {
   display: block;
