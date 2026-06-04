@@ -102,46 +102,36 @@
       </section>
 
       <section class="admin-panel hidden" data-panel="questions">
-        <form class="admin-form card" id="ai-question-form">
-          <div class="card-header"><strong>Gerar questão com IA</strong></div>
-          <div class="card-body admin-form-grid">
-            <div class="form-group span-2">
-              <label class="form-label">Simulado destino</label>
-              <select class="form-select" name="simulationId"></select>
+        <div class="card admin-question-bank">
+          <div class="card-header admin-question-bank-header">
+            <strong>Banco de questões</strong>
+            <button class="btn btn-secondary btn-sm" type="button" id="btn-open-ai">Usar IA</button>
+          </div>
+          <div class="card-body">
+            <div class="admin-question-filters">
+              <select class="form-select" id="question-filter"></select>
+              <input class="form-input" id="question-search" type="search" placeholder="Filtrar por enunciado, tópico, dificuldade ou resposta">
             </div>
-            <div class="form-group">
-              <label class="form-label">Plataforma / tópico</label>
-              <input class="form-input" name="subject" required placeholder="aws, gcp, azure, go">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Nível</label>
-              <input class="form-input" name="level" required placeholder="foundational, associate, professional">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Tópico da questão</label>
-              <input class="form-input" name="category" placeholder="IAM, redes, concorrência, observabilidade">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Dificuldade</label>
-              <select class="form-select" name="difficulty">
-                <option value="medium">Média</option>
-                <option value="easy">Básica</option>
-                <option value="hard">Avançada</option>
-              </select>
-            </div>
-            <div class="form-group span-2">
-              <label class="form-label">Tema / contexto</label>
-              <textarea class="form-input" name="context" rows="4" required placeholder="Descreva o cenário e o conhecimento que a questão deve avaliar"></textarea>
-              <div class="form-hint">A questão gerada será colocada no formulário abaixo para revisão antes de salvar.</div>
+            <div class="admin-table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Questão</th>
+                    <th>Simulado</th>
+                    <th>Tópico</th>
+                    <th>Dificuldade</th>
+                    <th>Respostas</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="questions-admin-list"></tbody>
+              </table>
             </div>
           </div>
-          <div class="card-footer admin-actions">
-            <button class="btn btn-secondary" type="submit">Gerar rascunho</button>
-          </div>
-        </form>
+        </div>
 
         <form class="admin-form card" id="question-form">
-          <div class="card-header"><strong>Questão</strong></div>
+          <div class="card-header"><strong>Visualização e edição da questão</strong></div>
           <div class="card-body admin-form-grid">
             <input type="hidden" name="questionId">
             <div class="form-group span-2">
@@ -174,8 +164,15 @@
             </div>
             <div class="form-group span-2">
               <label class="form-label">Explicação</label>
-              <textarea class="form-input" name="explanation" rows="8" placeholder="Use Markdown para textos longos, imagens e links. Ex: **ponto importante**, [documentação](https://...) ou ![diagrama](https://...)"></textarea>
-              <div class="form-hint">Aceita Markdown. Imagens e links HTTPS serão exibidos formatados para o usuário.</div>
+              <div class="markdown-editor">
+                <div class="markdown-tabs">
+                  <button class="markdown-tab active" type="button" data-markdown-tab="edit">Edição</button>
+                  <button class="markdown-tab" type="button" data-markdown-tab="preview">Visualização</button>
+                </div>
+                <textarea class="form-input markdown-editor-input" name="explanation" rows="10" placeholder="Use Markdown para textos longos, imagens e links. Ex: **ponto importante**, [documentação](https://...) ou ![diagrama](https://...)"></textarea>
+                <div class="markdown-preview hidden" id="explanation-preview"></div>
+                <div class="markdown-lint" id="explanation-lint"></div>
+              </div>
             </div>
             <div class="form-group span-2">
               <label class="form-label">Tags</label>
@@ -186,14 +183,6 @@
             <button class="btn btn-primary" type="submit">Salvar questão</button>
           </div>
         </form>
-
-        <div class="card">
-          <div class="card-header admin-table-header">
-            <strong>Banco de questões</strong>
-            <select class="form-select" id="question-filter"></select>
-          </div>
-          <div class="card-body admin-list" id="questions-admin-list"></div>
-        </div>
       </section>
 
       <section class="admin-panel hidden" data-panel="users">
@@ -207,6 +196,48 @@
       </section>
     </div>
   </main>
+</div>
+
+<div class="modal-overlay admin-ai-modal" id="ai-question-modal">
+  <form class="modal admin-ai-dialog" id="ai-question-form">
+    <button class="modal-close" type="button" id="btn-close-ai" aria-label="Fechar">×</button>
+    <h3 class="modal-title">Gerar questão com IA</h3>
+    <div class="admin-form-grid">
+      <div class="form-group span-2">
+        <label class="form-label">Simulado destino</label>
+        <select class="form-select" name="simulationId"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Plataforma / tópico</label>
+        <input class="form-input" name="subject" required placeholder="aws, gcp, azure, go">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nível</label>
+        <input class="form-input" name="level" required placeholder="foundational, associate, professional">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tópico da questão</label>
+        <input class="form-input" name="category" placeholder="IAM, redes, concorrência, observabilidade">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Dificuldade</label>
+        <select class="form-select" name="difficulty">
+          <option value="medium">Média</option>
+          <option value="easy">Básica</option>
+          <option value="hard">Avançada</option>
+        </select>
+      </div>
+      <div class="form-group span-2">
+        <label class="form-label">Tema / contexto</label>
+        <textarea class="form-input" name="context" rows="5" required placeholder="Descreva o cenário e o conhecimento que a questão deve avaliar"></textarea>
+        <div class="form-hint">A questão gerada será colocada no painel de edição para revisão antes de salvar.</div>
+      </div>
+    </div>
+    <div class="admin-actions mt-6">
+      <button class="btn btn-secondary" type="button" id="btn-cancel-ai">Cancelar</button>
+      <button class="btn btn-primary" type="submit">Gerar rascunho</button>
+    </div>
+  </form>
 </div>
 
 <div id="toast-container"></div>

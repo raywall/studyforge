@@ -26,8 +26,11 @@
   document.getElementById('btn-refresh')?.addEventListener('click', loadAll);
   document.getElementById('btn-reset-forms')?.addEventListener('click', resetForms);
   document.getElementById('question-filter')?.addEventListener('change', loadQuestions);
+  document.getElementById('question-search')?.addEventListener('input', renderQuestions);
   document.getElementById('user-filter')?.addEventListener('input', renderUsers);
   aiForm?.elements.simulationId?.addEventListener('change', syncAIFormFromSimulation);
+  bindAIModal();
+  bindMarkdownEditor();
 
   async function loadAll() {
     try {
@@ -115,6 +118,7 @@
         const res = await API.admin.questions.generateAI(readAIQuestionForm());
         fillQuestionForm(res.question || {});
         Utils.toast('Rascunho gerado. Revise e salve a questão.', 'success');
+        closeAIModal();
         document.querySelector('[data-tab="questions"]')?.click();
         qForm?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } catch (err) {
@@ -263,27 +267,34 @@
   function renderQuestions() {
     const el = document.getElementById('questions-admin-list');
     if (!el) return;
-    if (!state.questions.length) {
-      el.innerHTML = empty('Nenhuma questão encontrada.');
+    const term = normalizeSearch(document.getElementById('question-search')?.value || '');
+    const selectedId = qForm?.elements.questionId?.value || '';
+    const bySim = new Map(state.simulations.map(s => [s.simulationId, s.title]));
+    const questions = state.questions
+      .filter(q => !term || questionMatchesTerm(q, term, bySim))
+      .sort((a, b) => String(a.category || '').localeCompare(String(b.category || '')) || String(a.text || '').localeCompare(String(b.text || '')));
+    if (!questions.length) {
+      el.innerHTML = emptyTable(term ? 'Nenhuma questão encontrada com esse filtro.' : 'Nenhuma questão encontrada.');
       return;
     }
-    const bySim = new Map(state.simulations.map(s => [s.simulationId, s.title]));
-    el.innerHTML = state.questions.map(q => `
-      <div class="admin-row">
-        <div>
-          <div class="admin-row-title">${esc(Utils.truncate(q.text, 120))}</div>
-          <div class="admin-row-meta">
-            <span>${esc(bySim.get(q.simulationId) || q.simulationId)}</span>
-            <span>${esc(q.category || 'Sem tópico')}</span>
-            <span>${esc(q.difficulty || 'medium')}</span>
-            <span>Resposta(s) ${esc(correctIndexesLabel(q))}</span>
+    el.innerHTML = questions.map(q => `
+      <tr class="${q.questionId === selectedId ? 'selected' : ''}">
+        <td>
+          <button class="admin-table-question" type="button" data-edit-question="${esc(q.questionId)}">
+            ${esc(Utils.truncate(q.text, 150))}
+          </button>
+        </td>
+        <td>${esc(bySim.get(q.simulationId) || q.simulationId || 'Sem simulado')}</td>
+        <td>${esc(q.category || 'Sem tópico')}</td>
+        <td>${esc(difficultyLabel(q.difficulty))}</td>
+        <td>${esc(correctIndexesLabel(q))}</td>
+        <td>
+          <div class="admin-table-actions">
+            <button class="btn btn-secondary btn-sm" data-edit-question="${esc(q.questionId)}">Editar</button>
+            <button class="btn btn-danger btn-sm" data-delete-question="${esc(q.questionId)}">Remover</button>
           </div>
-        </div>
-        <div class="admin-row-actions">
-          <button class="btn btn-secondary btn-sm" data-edit-question="${esc(q.questionId)}">Editar</button>
-          <button class="btn btn-danger btn-sm" data-delete-question="${esc(q.questionId)}">Remover</button>
-        </div>
-      </div>`).join('');
+        </td>
+      </tr>`).join('');
     el.querySelectorAll('[data-edit-question]').forEach(btn => btn.addEventListener('click', () => editQuestion(btn.dataset.editQuestion)));
     el.querySelectorAll('[data-delete-question]').forEach(btn => btn.addEventListener('click', () => deleteQuestion(btn.dataset.deleteQuestion)));
   }
@@ -376,7 +387,7 @@
     if (!q) return;
     fillQuestionForm(q);
     document.querySelector('[data-tab="questions"]')?.click();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    qForm?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function fillQuestionForm(q) {
@@ -389,6 +400,9 @@
     qForm.elements.category.value = q.category || '';
     qForm.elements.difficulty.value = q.difficulty || 'medium';
     qForm.elements.tags.value = (q.tags || []).join(', ');
+    setMarkdownTab('edit');
+    updateMarkdownTools();
+    renderQuestions();
   }
 
   function deleteSimulation(id) {
@@ -435,10 +449,127 @@
     qForm.elements.questionId.value = '';
     qForm.elements.correctOptionIndexes.value = '1';
     qForm.elements.difficulty.value = 'medium';
+    setMarkdownTab('edit');
+    updateMarkdownTools();
+    renderQuestions();
   }
 
   function empty(text) {
     return `<div class="empty-state" style="padding:var(--space-8)"><h3>${esc(text)}</h3></div>`;
+  }
+
+  function emptyTable(text) {
+    return `<tr><td colspan="6"><div class="empty-state admin-table-empty"><h3>${esc(text)}</h3></div></td></tr>`;
+  }
+
+  function bindAIModal() {
+    document.getElementById('btn-open-ai')?.addEventListener('click', openAIModal);
+    document.getElementById('btn-close-ai')?.addEventListener('click', closeAIModal);
+    document.getElementById('btn-cancel-ai')?.addEventListener('click', closeAIModal);
+    document.getElementById('ai-question-modal')?.addEventListener('click', e => {
+      if (e.target?.id === 'ai-question-modal') closeAIModal();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeAIModal();
+    });
+  }
+
+  function openAIModal() {
+    document.getElementById('ai-question-modal')?.classList.add('open');
+    syncAIFormFromSimulation();
+    setTimeout(() => aiForm?.elements.context?.focus(), 0);
+  }
+
+  function closeAIModal() {
+    document.getElementById('ai-question-modal')?.classList.remove('open');
+  }
+
+  function bindMarkdownEditor() {
+    document.querySelectorAll('[data-markdown-tab]').forEach(btn => {
+      btn.addEventListener('click', () => setMarkdownTab(btn.dataset.markdownTab));
+    });
+    const input = qForm?.elements.explanation;
+    input?.addEventListener('keydown', e => {
+      if (e.key !== 'Tab') return;
+      e.preventDefault();
+      const start = input.selectionStart;
+      const end = input.selectionEnd;
+      input.value = `${input.value.slice(0, start)}\t${input.value.slice(end)}`;
+      input.selectionStart = input.selectionEnd = start + 1;
+      updateMarkdownTools();
+    });
+    input?.addEventListener('input', updateMarkdownTools);
+    updateMarkdownTools();
+  }
+
+  function setMarkdownTab(tab) {
+    const active = tab === 'preview' ? 'preview' : 'edit';
+    const input = qForm?.elements.explanation;
+    const preview = document.getElementById('explanation-preview');
+    document.querySelectorAll('[data-markdown-tab]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.markdownTab === active);
+    });
+    input?.classList.toggle('hidden', active !== 'edit');
+    preview?.classList.toggle('hidden', active !== 'preview');
+    updateMarkdownTools();
+  }
+
+  function updateMarkdownTools() {
+    updateMarkdownPreview();
+    updateMarkdownLint();
+  }
+
+  function updateMarkdownPreview() {
+    const preview = document.getElementById('explanation-preview');
+    const value = qForm?.elements.explanation?.value || '';
+    if (!preview) return;
+    preview.innerHTML = value.trim()
+      ? Utils.renderMarkdown(value)
+      : '<p class="markdown-empty">A visualização aparecerá aqui.</p>';
+  }
+
+  function updateMarkdownLint() {
+    const lint = document.getElementById('explanation-lint');
+    if (!lint) return;
+    const warnings = lintMarkdown(qForm?.elements.explanation?.value || '');
+    lint.innerHTML = warnings.length
+      ? warnings.map(w => `<span>${esc(w)}</span>`).join('')
+      : '<span class="ok">Markdown sem alertas.</span>';
+  }
+
+  function lintMarkdown(value) {
+    const warnings = [];
+    if (!String(value || '').trim()) return ['A explicação está vazia.'];
+    if (/!\[\s*\]\(/.test(value)) warnings.push('Adicione texto alternativo nas imagens.');
+    if (/!?\[[^\]]+\]\((?!https:\/\/|mailto:|#)[^)]+\)/i.test(value)) warnings.push('Prefira links e imagens com HTTPS.');
+    if ((value.match(/\[/g) || []).length !== (value.match(/\]/g) || []).length) warnings.push('Há colchetes sem fechamento.');
+    if ((value.match(/\(/g) || []).length !== (value.match(/\)/g) || []).length) warnings.push('Há parênteses sem fechamento.');
+    return warnings;
+  }
+
+  function questionMatchesTerm(q, term, bySim) {
+    return [
+      q.text,
+      q.category,
+      q.difficulty,
+      q.tags?.join(' '),
+      q.options?.join(' '),
+      correctIndexesLabel(q),
+      bySim.get(q.simulationId),
+      q.simulationId,
+    ].some(value => normalizeSearch(value).includes(term));
+  }
+
+  function normalizeSearch(value) {
+    return String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
+
+  function difficultyLabel(value) {
+    return ({ easy: 'Básica', medium: 'Média', hard: 'Avançada' })[value] || value || 'Média';
   }
 
   function userDetail(label, value) {

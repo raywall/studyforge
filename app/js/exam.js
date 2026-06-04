@@ -31,6 +31,7 @@
     state.mode      = res.attempt.mode;
     state.answers   = normalizeAnswers(res.attempt.answers || {});
     state.flagged   = new Set(res.attempt.flaggedQuestions || []);
+    state.current    = clampIndex(res.attempt.currentQuestionIndex || 0, state.questions.length);
     state.timeLeft  = res.attempt.timeRemainingSeconds ?? (res.attempt.timeLimitSeconds || 0);
     state.reviewMode = state.mode === 'training' && allQuestionsComplete();
 
@@ -259,9 +260,15 @@
     if (!grid) return;
     grid.innerHTML = state.questions.map((q, i) => {
       let cls = '';
-      if (i === state.current)                        cls = 'current';
-      else if (state.flagged.has(q.questionId))       cls = 'flagged';
-      else if (isComplete(q))                       cls = 'answered';
+      if (i === state.current) {
+        cls = 'current';
+      } else if (state.mode === 'learning' && isComplete(q)) {
+        cls = sameAnswerSet(selectedAnswers(q.questionId), correctAnswers(q)) ? 'correct' : 'wrong';
+      } else if (state.flagged.has(q.questionId)) {
+        cls = 'flagged';
+      } else if (isComplete(q)) {
+        cls = 'answered';
+      }
       const disabled = state.mode === 'training' && !state.reviewMode;
       return `<button class="nav-btn ${cls}" ${disabled ? 'disabled' : ''} onclick="renderQuestion(${i})" title="Questão ${i+1}">${i+1}</button>`;
     }).join('');
@@ -341,9 +348,10 @@
         answers: state.answers,
         flaggedQuestions: [...state.flagged],
         timeRemainingSeconds: state.timeLeft,
+        currentQuestionIndex: state.current,
       };
       if (sync) {
-        const token = localStorage.getItem(Config.TOKEN_KEY);
+        const token = Auth.getToken();
         if (token) {
           fetch(`${Config.API_BASE_URL}/attempts/${attemptId}`, {
             method: 'PUT',
@@ -428,6 +436,18 @@
 
   function allQuestionsComplete() {
     return state.questions.length > 0 && state.questions.every(q => isComplete(q));
+  }
+
+  function sameAnswerSet(a, b) {
+    a = [...new Set((a || []).map(Number).filter(Number.isFinite))].sort((x, y) => x - y);
+    b = [...new Set((b || []).map(Number).filter(Number.isFinite))].sort((x, y) => x - y);
+    return a.length === b.length && a.every((value, idx) => value === b[idx]);
+  }
+
+  function clampIndex(value, total) {
+    const idx = Number(value);
+    if (!Number.isFinite(idx) || idx < 0 || total <= 0) return 0;
+    return Math.min(idx, total - 1);
   }
 
   function answerLetters(indexes) {
