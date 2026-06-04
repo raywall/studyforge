@@ -102,6 +102,74 @@ const Utils = {
     return str.slice(0, len) + '…';
   },
 
+  escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;',
+    })[ch]);
+  },
+
+  renderMarkdown(markdown) {
+    const text = String(markdown || '').replace(/\r\n/g, '\n').trim();
+    if (!text) return '';
+
+    const renderInline = value => {
+      let html = Utils.escapeHtml(value);
+      html = html.replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g, '<img src="$2" alt="$1" loading="lazy" referrerpolicy="no-referrer">');
+      html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+      html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+      return html;
+    };
+
+    const blocks = [];
+    let paragraph = [];
+    let list = [];
+
+    const flushParagraph = () => {
+      if (!paragraph.length) return;
+      blocks.push(`<p>${paragraph.map(renderInline).join('<br>')}</p>`);
+      paragraph = [];
+    };
+    const flushList = () => {
+      if (!list.length) return;
+      blocks.push(`<ul>${list.map(item => `<li>${renderInline(item)}</li>`).join('')}</ul>`);
+      list = [];
+    };
+
+    text.split('\n').forEach(line => {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        flushParagraph();
+        flushList();
+        return;
+      }
+      const heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
+      if (heading) {
+        flushParagraph();
+        flushList();
+        const level = heading[1].length + 2;
+        blocks.push(`<h${level}>${renderInline(heading[2])}</h${level}>`);
+        return;
+      }
+      const bullet = trimmed.match(/^[-*]\s+(.+)$/);
+      if (bullet) {
+        flushParagraph();
+        list.push(bullet[1]);
+        return;
+      }
+      flushList();
+      paragraph.push(trimmed);
+    });
+    flushParagraph();
+    flushList();
+    return `<div class="markdown-content">${blocks.join('')}</div>`;
+  },
+
   // Level label
   levelLabel(level) {
     const labels = { practitioner: 'Practitioner', foundational: 'Foundational', associate: 'Associate', professional: 'Professional', specialty: 'Specialty', beginner: 'Iniciante', intermediate: 'Intermediário', advanced: 'Avançado' };

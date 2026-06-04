@@ -241,7 +241,7 @@
     }
     expl.innerHTML = `
       <div class="explanation-title">💡 Explicação</div>
-      <div>${q.explanation || 'A opção correta é ' + answerLetters(correct).join(', ') + '.'}</div>`;
+      ${Utils.renderMarkdown(q.explanation || 'A opção correta é ' + answerLetters(correct).join(', ') + '.')}`;
     expl.style.display = 'block';
   }
 

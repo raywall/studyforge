@@ -161,7 +161,7 @@
               </div>`;
             }).join('')}
           </div>
-          ${q.explanation ? `<div class="explanation-box"><div class="explanation-title">💡 Explicação</div>${q.explanation}</div>` : ''}
+          ${q.explanation ? `<div class="explanation-box"><div class="explanation-title">💡 Explicação</div>${Utils.renderMarkdown(q.explanation)}</div>` : ''}
         </div>
       </div>`;
     }).join('');
