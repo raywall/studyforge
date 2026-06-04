@@ -94,7 +94,7 @@ const Components = (() => {
     if (emailEl) emailEl.textContent = user.email;
     if (avatar)  avatar.textContent  = Utils.initials(user.name);
     document.querySelectorAll('[data-admin-only]').forEach(el => {
-      el.classList.toggle('hidden', user.role !== 'admin');
+      el.classList.toggle('hidden', !Auth.isAdmin(user));
     });
   }
 

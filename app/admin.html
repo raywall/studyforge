@@ -36,6 +36,7 @@
       <div class="admin-tabs">
         <button class="filter-chip active" data-tab="simulations">Simulados</button>
         <button class="filter-chip" data-tab="questions">Questões</button>
+        <button class="filter-chip" data-tab="users">Usuários</button>
       </div>
 
       <section class="admin-panel" data-panel="simulations">
@@ -191,6 +192,16 @@
             <select class="form-select" id="question-filter"></select>
           </div>
           <div class="card-body admin-list" id="questions-admin-list"></div>
+        </div>
+      </section>
+
+      <section class="admin-panel hidden" data-panel="users">
+        <div class="card">
+          <div class="card-header admin-table-header">
+            <strong>Usuários cadastrados</strong>
+            <input class="form-input" id="user-filter" type="search" placeholder="Buscar por nome, e-mail, cidade ou empresa">
+          </div>
+          <div class="card-body admin-list" id="users-admin-list"></div>
         </div>
       </section>
     </div>

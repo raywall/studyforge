@@ -26,12 +26,20 @@
 .stats-card:hover { border-color: var(--border-light); transform: translateY(-2px); box-shadow: var(--shadow-md); }
 .stats-card-icon {
   width: 44px; height: 44px; border-radius: var(--radius-lg);
-  display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
 }
-.stats-card-icon.purple { background: var(--color-primary-light); }
-.stats-card-icon.blue   { background: var(--color-info-light); }
-.stats-card-icon.green  { background: var(--color-success-light); }
-.stats-card-icon.yellow { background: var(--color-warning-light); }
+.stats-card-icon.purple { background: var(--color-primary-light); color: var(--color-primary); }
+.stats-card-icon.blue   { background: var(--color-info-light);    color: var(--color-info); }
+.stats-card-icon.green  { background: var(--color-success-light); color: var(--color-success); }
+.stats-card-icon.yellow { background: var(--color-warning-light); color: var(--color-warning); }
+.dashboard-stat-icon {
+  display: block;
+  width: 24px;
+  height: 24px;
+  aspect-ratio: 1 / 1;
+  overflow: visible;
+}
 .stats-card-value { font-size: var(--text-3xl); font-weight: var(--weight-bold); line-height: 1; }
 .stats-card-label { font-size: var(--text-sm); color: var(--text-secondary); }
 .stats-card-trend {

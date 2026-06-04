@@ -83,6 +83,9 @@ const API = (() => {
     },
 
     admin: {
+      users: {
+        list: () => request('GET', '/admin/users'),
+      },
       simulations: {
         list:   () => request('GET', '/admin/simulations'),
         save:   (data) => data.simulationId

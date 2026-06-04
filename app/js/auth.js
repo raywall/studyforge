@@ -31,6 +31,10 @@ const Auth = (() => {
 
   function isLoggedIn() { return !!getToken(); }
 
+  function isAdmin(user = getUser()) {
+    return user?.role === 'admin' && String(user.email || '').toLowerCase() === Config.ADMIN_EMAIL;
+  }
+
   function requireAuth() {
     if (!isLoggedIn()) {
       window.location.href = 'index.html';
@@ -98,5 +102,5 @@ const Auth = (() => {
     return Date.now() / 1000 > payload.exp - 60; // 60s buffer
   }
 
-  return { getToken, setToken, removeToken, getUser, setUser, removeUser, isLoggedIn, requireAuth, redirectIfLoggedIn, login, register, verifyEmail, forgotPassword, resetPassword, changePassword, logout, decodePayload, isTokenExpired };
+  return { getToken, setToken, removeToken, getUser, setUser, removeUser, isLoggedIn, isAdmin, requireAuth, redirectIfLoggedIn, login, register, verifyEmail, forgotPassword, resetPassword, changePassword, logout, decodePayload, isTokenExpired };
 })();

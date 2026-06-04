@@ -6,14 +6,14 @@
   if (!Auth.requireAuth()) return;
   Components.showPageLoader();
   await Components.initLayout();
-  if (Auth.getUser()?.role !== 'admin') {
+  if (!Auth.isAdmin()) {
     Components.hidePageLoader();
     Utils.toast('Acesso administrativo necessário.', 'error');
     setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
     return;
   }
 
-  const state = { simulations: [], questions: [] };
+  const state = { simulations: [], questions: [], users: [] };
   const simForm = document.getElementById('simulation-form');
   const qForm = document.getElementById('question-form');
   const aiForm = document.getElementById('ai-question-form');
@@ -26,6 +26,7 @@
   document.getElementById('btn-refresh')?.addEventListener('click', loadAll);
   document.getElementById('btn-reset-forms')?.addEventListener('click', resetForms);
   document.getElementById('question-filter')?.addEventListener('change', loadQuestions);
+  document.getElementById('user-filter')?.addEventListener('input', renderUsers);
   aiForm?.elements.simulationId?.addEventListener('change', syncAIFormFromSimulation);
 
   async function loadAll() {
@@ -35,6 +36,7 @@
       renderSimulationOptions();
       renderSimulations();
       await loadQuestions();
+      await loadUsers();
     } catch (e) {
       Utils.toast(e.message || 'Erro ao carregar administração', 'error');
     }
@@ -48,6 +50,16 @@
       renderQuestions();
     } catch (e) {
       Utils.toast(e.message || 'Erro ao carregar questões', 'error');
+    }
+  }
+
+  async function loadUsers() {
+    try {
+      const res = await API.admin.users.list();
+      state.users = res.users || [];
+      renderUsers();
+    } catch (e) {
+      Utils.toast(e.message || 'Erro ao carregar usuários', 'error');
     }
   }
 
@@ -276,6 +288,71 @@
     el.querySelectorAll('[data-delete-question]').forEach(btn => btn.addEventListener('click', () => deleteQuestion(btn.dataset.deleteQuestion)));
   }
 
+  function renderUsers() {
+    const el = document.getElementById('users-admin-list');
+    if (!el) return;
+    const term = String(document.getElementById('user-filter')?.value || '').trim().toLowerCase();
+    const users = state.users
+      .filter(user => !term || [
+        user.name,
+        user.email,
+        user.city,
+        user.state,
+        user.country,
+        user.profession,
+        user.education,
+        user.jobTitle,
+        user.company,
+        user.phone,
+      ].some(value => String(value || '').toLowerCase().includes(term)))
+      .sort((a, b) => String(a.name || a.email).localeCompare(String(b.name || b.email)));
+    if (!users.length) {
+      el.innerHTML = empty(term ? 'Nenhum usuário encontrado.' : 'Nenhum usuário cadastrado.');
+      return;
+    }
+    el.innerHTML = users.map(user => `
+      <div class="admin-row admin-user-row">
+        <div>
+          <div class="admin-row-title">${esc(user.name || user.email)}</div>
+          <div class="admin-row-meta">
+            <span>${esc(user.email)}</span>
+            <span>${esc(user.role === 'admin' ? 'Administrador' : 'Estudante')}</span>
+            <span>${user.emailVerified ? 'E-mail verificado' : 'Pendente de ativação'}</span>
+            <span>${esc([user.city, user.state, user.country].filter(Boolean).join(' / ') || 'Local não informado')}</span>
+          </div>
+          <dl class="admin-user-details hidden" id="user-details-${esc(user.userId)}">
+            ${userDetail('Nome', user.name)}
+            ${userDetail('Nome completo', [user.firstName, user.lastName].filter(Boolean).join(' '))}
+            ${userDetail('E-mail', user.email)}
+            ${userDetail('Telefone', user.phone)}
+            ${userDetail('Nascimento', formatDate(user.birthDate))}
+            ${userDetail('Cidade', user.city)}
+            ${userDetail('Estado', user.state)}
+            ${userDetail('País', user.country)}
+            ${userDetail('Profissão', user.profession)}
+            ${userDetail('Formação', user.education)}
+            ${userDetail('Cargo', user.jobTitle)}
+            ${userDetail('Empresa', user.company)}
+            ${userDetail('Perfil', user.role === 'admin' ? 'Administrador' : 'Estudante')}
+            ${userDetail('Ativação', user.emailVerified ? 'E-mail verificado' : 'Pendente de ativação')}
+            ${userDetail('Cadastro', formatDateTime(user.createdAt))}
+            ${userDetail('Último login', formatDateTime(user.lastLoginAt) || 'Ainda não acessou')}
+            ${userDetail('ID', user.userId)}
+          </dl>
+        </div>
+        <div class="admin-row-actions">
+          <button class="btn btn-secondary btn-sm" data-toggle-user="${esc(user.userId)}">Ver dados</button>
+        </div>
+      </div>`).join('');
+    el.querySelectorAll('[data-toggle-user]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const details = document.getElementById(`user-details-${btn.dataset.toggleUser}`);
+        const isHidden = details?.classList.toggle('hidden');
+        btn.textContent = isHidden ? 'Ver dados' : 'Ocultar';
+      });
+    });
+  }
+
   function editSimulation(id) {
     const sim = state.simulations.find(s => s.simulationId === id);
     if (!sim) return;
@@ -362,6 +439,26 @@
 
   function empty(text) {
     return `<div class="empty-state" style="padding:var(--space-8)"><h3>${esc(text)}</h3></div>`;
+  }
+
+  function userDetail(label, value) {
+    const text = String(value || '').trim();
+    if (!text) return '';
+    return `<div><dt>${esc(label)}</dt><dd>${esc(text)}</dd></div>`;
+  }
+
+  function formatDate(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleDateString('pt-BR');
+  }
+
+  function formatDateTime(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
   }
 
   function esc(value) {
