@@ -30,20 +30,22 @@ body {
 
 .subject-icon {
   display: inline-block;
-  vertical-align: -0.15em;
-  flex-shrink: 0;
-}
-
-.subject-icon-square {
   width: 1.15em;
   height: 1.15em;
+  min-width: 1.15em;
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+  vertical-align: -0.15em;
+  object-fit: contain;
 }
 
+.subject-icon-square,
 .subject-icon-wide,
 .subject-icon-go {
-  width: 1.85em;
-  height: 0.7em;
-  min-width: 1.85em;
+  width: 1.15em;
+  height: 1.15em;
+  min-width: 1.15em;
+  aspect-ratio: 1 / 1;
 }
 
 /* Badge */
