@@ -175,6 +175,12 @@ const Utils = {
         flushList();
         return;
       }
+      if (/^([-*_])(?:\s*\1){2,}$/.test(trimmed)) {
+        flushParagraph();
+        flushList();
+        blocks.push('<hr>');
+        return;
+      }
       const heading = trimmed.match(/^(#{1,6})\s+(.+)$/);
       if (heading) {
         flushParagraph();

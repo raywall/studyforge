@@ -227,6 +227,13 @@ body {
 .markdown-content h4,
 .markdown-content h5,
 .markdown-content h6 { font-size: var(--text-sm); }
+.markdown-content hr {
+  width: 100%;
+  height: 1px;
+  border: 0;
+  background: var(--border-color);
+  margin: var(--space-2) 0;
+}
 .markdown-content p,
 .markdown-content ul,
 .markdown-content ol {
