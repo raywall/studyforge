@@ -12,7 +12,7 @@ const Theme = (() => {
     localStorage.setItem(KEY, next);
     document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
       btn.setAttribute('aria-pressed', String(next === 'light'));
-      btn.innerHTML = next === 'light' ? '<span>☀</span><span>Claro</span>' : '<span>☾</span><span>Escuro</span>';
+      btn.innerHTML = next === 'light' ? '<span>☀</span>' : '<span>☾</span>'; // claro e escuro
     });
   }
 

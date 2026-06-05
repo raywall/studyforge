@@ -153,6 +153,15 @@
   text-decoration: none; color: inherit;
 }
 .my-sim-item:hover { border-color: var(--border-light); background: var(--bg-card-hover); }
+.my-sim-item-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
 .my-sim-item-icon { font-size: 1.5rem; flex-shrink: 0; }
 .my-sim-item-info { flex: 1; min-width: 0; }
 .my-sim-item-title { font-size: var(--text-sm); font-weight: var(--weight-medium); }
@@ -160,6 +169,7 @@
 .my-sim-item-score { text-align: right; flex-shrink: 0; }
 .my-sim-item-score-value { font-size: var(--text-lg); font-weight: var(--weight-bold); }
 .my-sim-item-score-label { font-size: 10px; color: var(--text-muted); }
+.my-sim-delete { flex-shrink: 0; }
 .score-high   { color: var(--color-success); }
 .score-medium { color: var(--color-warning); }
 .score-low    { color: var(--color-danger);  }

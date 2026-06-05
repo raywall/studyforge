@@ -133,6 +133,17 @@ textarea.form-input {
   max-width: 280px;
 }
 
+.admin-simulation-filters {
+  padding-bottom: 0;
+}
+
+.admin-simulation-filter-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 150px) minmax(130px, 170px) minmax(110px, 130px) minmax(180px, 1fr);
+  gap: var(--space-3);
+  align-items: center;
+}
+
 .admin-question-bank-header {
   display: flex;
   align-items: center;
@@ -362,6 +373,10 @@ textarea.form-input {
   }
 
   .admin-question-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-simulation-filter-row {
     grid-template-columns: 1fr;
   }
 

@@ -13,7 +13,7 @@
   ]);
 
   const sims   = simulations.status   === 'fulfilled' ? simulations.value?.simulations   || [] : [];
-  const userSims= userSimulations.status=== 'fulfilled' ? userSimulations.value?.userSimulations || [] : [];
+  let userSims= userSimulations.status=== 'fulfilled' ? userSimulations.value?.userSimulations || [] : [];
 
   Components.updateCatalogNav(sims);
   renderStats(userSims);
@@ -65,7 +65,49 @@
     }
     // Sort by most recent
     const sorted = [...list].sort((a,b) => new Date(b.generatedAt) - new Date(a.generatedAt));
-    container.innerHTML = sorted.slice(0, 6).map(Components.renderMySimItem).join('');
+    container.innerHTML = sorted.slice(0, 6).map(renderMySimItem).join('');
+    container.querySelectorAll('[data-delete-user-sim]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        deleteUserSimulation(btn.dataset.deleteUserSim);
+      });
+    });
+  }
+
+  function renderMySimItem(us) {
+    const icon = Utils.subjectIcon(us.subject);
+    const scoreCls = us.bestScore != null ? Utils.scoreTextClass(us.bestScore) : '';
+    const scoreVal = us.bestScore != null ? `${us.bestScore}%` : '—';
+    return `
+    <div class="my-sim-item">
+      <a class="my-sim-item-main" href="simulation.html?usid=${us.userSimulationId}">
+        <span class="my-sim-item-icon">${icon}</span>
+        <div class="my-sim-item-info">
+          <div class="my-sim-item-title">${us.title}</div>
+          <div class="my-sim-item-sub">${us.attemptsCount} tentativa${us.attemptsCount!==1?'s':''} · Gerado ${Utils.timeAgo(us.generatedAt)}</div>
+        </div>
+        <div class="my-sim-item-score">
+          <div class="my-sim-item-score-value ${scoreCls}">${scoreVal}</div>
+          <div class="my-sim-item-score-label">Melhor nota</div>
+        </div>
+      </a>
+      <button class="btn btn-danger btn-sm my-sim-delete" type="button" data-delete-user-sim="${us.userSimulationId}" title="Excluir simulado gerado">Excluir</button>
+    </div>`;
+  }
+
+  function deleteUserSimulation(userSimulationId) {
+    Utils.confirm('Excluir simulado gerado', 'Este simulado gerado e suas tentativas serão removidos. Deseja continuar?', async () => {
+      try {
+        await API.userSimulations.delete(userSimulationId);
+        userSims = userSims.filter(item => item.userSimulationId !== userSimulationId);
+        renderStats(userSims);
+        renderMySims(userSims);
+        Utils.toast('Simulado gerado excluído.', 'success');
+      } catch (err) {
+        Utils.toast(err.message || 'Erro ao excluir simulado gerado', 'error');
+      }
+    }, true);
   }
 
   // ── Filters ───────────────────────────────────────────

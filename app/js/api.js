@@ -70,6 +70,7 @@ const API = (() => {
       list:    ()   => request('GET', '/user-simulations'),
       get:     (id) => request('GET', `/user-simulations/${id}`),
       stats:   (id) => request('GET', `/user-simulations/${id}/stats`),
+      delete:  (id) => request('DELETE', `/user-simulations/${id}`),
     },
 
     // Attempts
