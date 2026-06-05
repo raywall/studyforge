@@ -168,7 +168,7 @@
 .my-sim-item-info { flex: 1; min-width: 0; }
 .my-sim-item-title { font-size: var(--text-sm); font-weight: var(--weight-medium); }
 .my-sim-item-sub   { font-size: var(--text-xs); color: var(--text-muted); margin-top: 2px; }
-.my-sim-item-score { text-align: right; flex-shrink: 0; }
+.my-sim-item-score { text-align: right; flex-shrink: 0; margin-right: -29px; }
 .my-sim-item-score-value { font-size: var(--text-lg); font-weight: var(--weight-bold); }
 .my-sim-item-score-label { font-size: 10px; color: var(--text-muted); }
 .my-sim-delete.icon-action {
