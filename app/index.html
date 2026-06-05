@@ -30,6 +30,7 @@
     .form-section { display: none; }
     .form-section.active { display: flex; flex-direction: column; gap: var(--space-4); animation: fadeIn 200ms ease; }
     .form-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-4); }
+    .required-label::after { content: '*'; color: var(--color-danger); margin-left: 2px; }
     @media(max-width:640px){ .form-row { grid-template-columns:1fr; } }
   </style>
 </head>
@@ -138,20 +139,20 @@
       <form id="form-register" class="auth-form form-section" onsubmit="handleRegister(event)">
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label" for="reg-name">Nome</label>
+            <label class="form-label required-label" for="reg-name">Nome</label>
             <input class="form-input" type="text" id="reg-name" placeholder="Seu nome" required autocomplete="given-name">
           </div>
           <div class="form-group">
-            <label class="form-label" for="reg-lastname">Sobrenome</label>
+            <label class="form-label required-label" for="reg-lastname">Sobrenome</label>
             <input class="form-input" type="text" id="reg-lastname" placeholder="Sobrenome" required autocomplete="family-name">
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label" for="reg-email">E-mail</label>
+          <label class="form-label required-label" for="reg-email">E-mail</label>
           <input class="form-input" type="email" id="reg-email" placeholder="seu@email.com" required autocomplete="email">
         </div>
         <div class="form-group">
-          <label class="form-label" for="reg-password">Senha</label>
+          <label class="form-label required-label" for="reg-password">Senha</label>
           <div class="form-password-wrapper">
             <input class="form-input" type="password" id="reg-password" placeholder="Mín. 8 caracteres" required minlength="8" autocomplete="new-password" oninput="checkPasswordStrength(this.value)">
             <button type="button" class="btn-password-toggle" onclick="togglePassword('reg-password', this)">👁</button>
@@ -165,42 +166,42 @@
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label" for="reg-city">Cidade</label>
+            <label class="form-label required-label" for="reg-city">Cidade</label>
             <input class="form-input" type="text" id="reg-city" required autocomplete="address-level2">
           </div>
           <div class="form-group">
-            <label class="form-label" for="reg-state">Estado</label>
+            <label class="form-label required-label" for="reg-state">Estado</label>
             <input class="form-input" type="text" id="reg-state" required autocomplete="address-level1">
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label" for="reg-country">País</label>
+            <label class="form-label required-label" for="reg-country">País</label>
             <input class="form-input" type="text" id="reg-country" required autocomplete="country-name" value="Brasil">
           </div>
           <div class="form-group">
-            <label class="form-label" for="reg-phone">Telefone</label>
+            <label class="form-label required-label" for="reg-phone">Telefone</label>
             <input class="form-input" type="tel" id="reg-phone" required autocomplete="tel">
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label" for="reg-profession">Profissão</label>
+            <label class="form-label required-label" for="reg-profession">Profissão</label>
             <input class="form-input" type="text" id="reg-profession" required>
           </div>
           <div class="form-group">
-            <label class="form-label" for="reg-education">Formação</label>
+            <label class="form-label required-label" for="reg-education">Formação</label>
             <input class="form-input" type="text" id="reg-education" required>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" for="reg-job-title">Cargo</label>
-            <input class="form-input" type="text" id="reg-job-title" required>
+            <input class="form-input" type="text" id="reg-job-title">
           </div>
           <div class="form-group">
             <label class="form-label" for="reg-company">Empresa</label>
-            <input class="form-input" type="text" id="reg-company" required>
+            <input class="form-input" type="text" id="reg-company">
           </div>
         </div>
         <div class="form-group">
@@ -268,6 +269,7 @@
 <script>
   // Redirect if already logged in
   Auth.redirectIfLoggedIn();
+  configureBirthDateInput();
 
   function switchTab(tab) {
     document.getElementById('tab-login').classList.toggle('active', tab === 'login');
@@ -321,6 +323,13 @@
     const lastName  = document.getElementById('reg-lastname').value.trim();
     const email    = document.getElementById('reg-email').value.trim();
     const password = document.getElementById('reg-password').value;
+    const birthDate = document.getElementById('reg-birth-date').value;
+    const birthError = validateBirthDate(birthDate);
+    if (birthError) {
+      showError(birthError);
+      document.getElementById('reg-birth-date').focus();
+      return;
+    }
     const btn = document.getElementById('btn-register');
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Criando conta…';
@@ -339,7 +348,7 @@
         jobTitle: document.getElementById('reg-job-title').value.trim(),
         company: document.getElementById('reg-company').value.trim(),
         phone: document.getElementById('reg-phone').value.trim(),
-        birthDate: document.getElementById('reg-birth-date').value,
+        birthDate,
       });
       document.getElementById('verify-email').value = email;
       if (res.activationCode) document.getElementById('verify-code').value = res.activationCode;
@@ -351,6 +360,34 @@
       btn.disabled = false;
       btn.textContent = 'Criar conta grátis';
     }
+  }
+
+  function configureBirthDateInput() {
+    const input = document.getElementById('reg-birth-date');
+    if (!input) return;
+    const today = new Date();
+    const min = new Date(today.getFullYear() - 120, today.getMonth(), today.getDate());
+    input.max = toDateInputValue(today);
+    input.min = toDateInputValue(min);
+  }
+
+  function validateBirthDate(value) {
+    if (!value) return '';
+    const date = new Date(`${value}T00:00:00`);
+    const today = new Date();
+    const min = new Date(today.getFullYear() - 120, today.getMonth(), today.getDate());
+    if (Number.isNaN(date.getTime()) || date > today || date < min) {
+      return 'Informe uma data de nascimento válida.';
+    }
+    return '';
+  }
+
+  function toDateInputValue(date) {
+    return [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, '0'),
+      String(date.getDate()).padStart(2, '0'),
+    ].join('-');
   }
 
   async function handleVerifyEmail(e) {

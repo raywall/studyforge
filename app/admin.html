@@ -96,7 +96,19 @@
         </form>
 
         <div class="card">
-          <div class="card-header"><strong>Simulados cadastrados</strong></div>
+          <div class="card-header admin-table-header">
+            <strong>Simulados cadastrados</strong>
+          </div>
+          <div class="card-body admin-simulation-filters">
+            <div class="filters-bar" id="admin-simulation-filters">
+              <div class="filter-search">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input type="search" id="simulation-search" placeholder="Buscar simulado…">
+              </div>
+            </div>
+          </div>
           <div class="card-body admin-list" id="simulations-admin-list"></div>
         </div>
       </section>

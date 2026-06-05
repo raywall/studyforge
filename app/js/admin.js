@@ -13,7 +13,7 @@
     return;
   }
 
-  const state = { simulations: [], questions: [], users: [] };
+  const state = { simulations: [], questions: [], users: [], simulationFilters: new Set(), simulationQuery: '' };
   const simForm = document.getElementById('simulation-form');
   const qForm = document.getElementById('question-form');
   const aiForm = document.getElementById('ai-question-form');
@@ -27,6 +27,10 @@
   document.getElementById('btn-reset-forms')?.addEventListener('click', resetForms);
   document.getElementById('question-filter')?.addEventListener('change', loadQuestions);
   document.getElementById('question-search')?.addEventListener('input', renderQuestions);
+  document.getElementById('simulation-search')?.addEventListener('input', Utils.debounce(e => {
+    state.simulationQuery = e.target.value;
+    renderSimulations();
+  }, 200));
   document.getElementById('user-filter')?.addEventListener('input', renderUsers);
   aiForm?.elements.simulationId?.addEventListener('change', syncAIFormFromSimulation);
   bindAIModal();
@@ -37,6 +41,7 @@
       const sims = await API.admin.simulations.list();
       state.simulations = sims.simulations || [];
       renderSimulationOptions();
+      renderSimulationFilters();
       renderSimulations();
       await loadQuestions();
       await loadUsers();
@@ -228,6 +233,38 @@
     if (filter) filter.innerHTML = `<option value="">Todos os simulados</option>${opts}`;
   }
 
+  function renderSimulationFilters() {
+    const bar = document.getElementById('admin-simulation-filters');
+    if (!bar || bar.dataset.ready === 'true') return;
+    const search = bar.querySelector('.filter-search');
+    const subjects = [...new Set(state.simulations.map(s => (s.subject || '').toLowerCase()).filter(Boolean))].sort();
+    const levels = [...new Set(state.simulations.map(s => (s.level || '').toLowerCase()).filter(Boolean))].sort();
+    const chips = [
+      { filter: 'all', label: 'Todos' },
+      ...subjects.map(subject => ({ filter: subject, label: `${Utils.subjectIcon(subject)} ${subject.toUpperCase()}` })),
+      ...levels.map(level => ({ filter: level, label: Utils.levelLabel(level) })),
+      { filter: 'active', label: 'Ativos' },
+      { filter: 'inactive', label: 'Inativos' },
+    ];
+    search?.insertAdjacentHTML('beforebegin', chips.map(chip => `
+      <button class="filter-chip${chip.filter === 'all' ? ' active' : ''}" data-sim-filter="${esc(chip.filter)}">${chip.label}</button>
+    `).join(''));
+    bar.querySelectorAll('[data-sim-filter]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const filter = chip.dataset.simFilter;
+        if (filter === 'all') {
+          state.simulationFilters.clear();
+        } else if (state.simulationFilters.has(filter)) {
+          state.simulationFilters.delete(filter);
+        } else {
+          state.simulationFilters.add(filter);
+        }
+        renderSimulations();
+      });
+    });
+    bar.dataset.ready = 'true';
+  }
+
   function syncAIFormFromSimulation() {
     if (!aiForm) return;
     const sim = state.simulations.find(s => s.simulationId === aiForm.elements.simulationId.value);
@@ -239,11 +276,13 @@
   function renderSimulations() {
     const el = document.getElementById('simulations-admin-list');
     if (!el) return;
-    if (!state.simulations.length) {
+    const filtered = filteredSimulations();
+    updateSimulationFilterChips();
+    if (!filtered.length) {
       el.innerHTML = empty('Nenhum simulado cadastrado.');
       return;
     }
-    el.innerHTML = state.simulations.map(sim => `
+    el.innerHTML = filtered.map(sim => `
       <div class="admin-row">
         <div>
           <div class="admin-row-title">${esc(sim.title)}</div>
@@ -262,6 +301,33 @@
       </div>`).join('');
     el.querySelectorAll('[data-edit-sim]').forEach(btn => btn.addEventListener('click', () => editSimulation(btn.dataset.editSim)));
     el.querySelectorAll('[data-delete-sim]').forEach(btn => btn.addEventListener('click', () => deleteSimulation(btn.dataset.deleteSim)));
+  }
+
+  function filteredSimulations() {
+    const subjects = new Set(state.simulations.map(s => (s.subject || '').toLowerCase()).filter(Boolean));
+    const levels = new Set(state.simulations.map(s => (s.level || '').toLowerCase()).filter(Boolean));
+    const selectedSubjects = [...state.simulationFilters].filter(filter => subjects.has(filter));
+    const selectedLevels = [...state.simulationFilters].filter(filter => levels.has(filter));
+    const statusFilters = [...state.simulationFilters].filter(filter => filter === 'active' || filter === 'inactive');
+    const term = normalizeSearch(state.simulationQuery || '');
+    return state.simulations
+      .filter(sim => {
+        const subject = (sim.subject || '').toLowerCase();
+        const level = (sim.level || '').toLowerCase();
+        const subjectMatch = !selectedSubjects.length || selectedSubjects.some(filter => subject.includes(filter));
+        const levelMatch = !selectedLevels.length || selectedLevels.includes(level);
+        const statusMatch = !statusFilters.length || statusFilters.some(filter => filter === 'active' ? sim.active : !sim.active);
+        const termMatch = !term || [sim.title, sim.description, sim.subject, sim.level, sim.tags?.join(' ')].some(value => normalizeSearch(value).includes(term));
+        return subjectMatch && levelMatch && statusMatch && termMatch;
+      })
+      .sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
+  }
+
+  function updateSimulationFilterChips() {
+    document.querySelectorAll('[data-sim-filter]').forEach(chip => {
+      const filter = chip.dataset.simFilter;
+      chip.classList.toggle('active', filter === 'all' ? state.simulationFilters.size === 0 : state.simulationFilters.has(filter));
+    });
   }
 
   function renderQuestions() {

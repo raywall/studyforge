@@ -73,7 +73,7 @@
     const bar = document.getElementById('catalog-filters');
     const search = document.querySelector('.filter-search input');
     const params = new URLSearchParams(window.location.search);
-    let current  = 'all';
+    const selected = new Set();
     let query    = '';
     const subjects = [...new Set(list.map(s => (s.subject || '').toLowerCase()).filter(Boolean))].sort();
     const levels = [...new Set(list.map(s => (s.level || '').toLowerCase()).filter(Boolean))].sort();
@@ -89,23 +89,58 @@
       `).join(''));
     }
     const chips  = document.querySelectorAll('.filter-chip[data-filter]');
-    current = params.get('filter') || 'all';
+    const initialFilters = (params.get('filters') || params.get('filter') || '')
+      .split(',')
+      .map(v => v.trim().toLowerCase())
+      .filter(v => v && v !== 'all');
+    initialFilters.forEach(filter => selected.add(filter));
 
     function apply() {
       const grid = document.getElementById('simulations-grid');
       if (!grid) return;
       let filtered = list;
-      if (current !== 'all') filtered = filtered.filter(s => (s.subject||'').toLowerCase().includes(current) || (s.level||'').toLowerCase() === current);
+      if (selected.size) {
+        const selectedSubjects = [...selected].filter(filter => subjects.includes(filter));
+        const selectedLevels = [...selected].filter(filter => levels.includes(filter));
+        filtered = filtered.filter(sim => {
+          const subject = (sim.subject || '').toLowerCase();
+          const level = (sim.level || '').toLowerCase();
+          const subjectMatch = !selectedSubjects.length || selectedSubjects.some(filter => subject.includes(filter));
+          const levelMatch = !selectedLevels.length || selectedLevels.includes(level);
+          return subjectMatch && levelMatch;
+        });
+      }
       if (query) filtered = filtered.filter(s => (s.title+s.description+s.subject).toLowerCase().includes(query.toLowerCase()));
+      updateChipState();
+      updateURL();
       renderCatalog(filtered);
     }
 
+    function updateChipState() {
+      chips.forEach(chip => {
+        const filter = chip.dataset.filter;
+        chip.classList.toggle('active', filter === 'all' ? selected.size === 0 : selected.has(filter));
+      });
+    }
+
+    function updateURL() {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('filter');
+      if (selected.size) url.searchParams.set('filters', [...selected].join(','));
+      else url.searchParams.delete('filters');
+      window.history.replaceState({}, '', url);
+    }
+
     chips.forEach(chip => {
-      chip.classList.toggle('active', chip.dataset.filter === current);
       chip.addEventListener('click', () => {
-        chips.forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        current = chip.dataset.filter;
+        const filter = chip.dataset.filter;
+        if (filter === 'all') {
+          selected.clear();
+        } else if (selected.has(filter)) {
+          selected.delete(filter);
+        } else {
+          selected.add(filter);
+        }
         apply();
       });
     });
