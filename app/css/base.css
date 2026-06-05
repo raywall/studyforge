@@ -97,6 +97,38 @@ body {
 .btn-danger  { background: var(--color-danger); color: #fff; }
 .btn-danger:hover  { filter: brightness(1.1); transform: translateY(-1px); }
 
+.icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  padding: 0;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.icon-action:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  transform: translateY(-1px);
+}
+.icon-action.danger:hover {
+  border-color: var(--color-danger);
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+}
+.icon-action i {
+  font-size: 0.95rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
 /* Cards */
 .card {
   background: var(--bg-card); border: 1px solid var(--border-color);

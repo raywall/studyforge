@@ -92,7 +92,9 @@
           <div class="my-sim-item-score-label">Melhor nota</div>
         </div>
       </a>
-      <button class="btn btn-danger btn-sm my-sim-delete" type="button" data-delete-user-sim="${us.userSimulationId}" title="Excluir simulado gerado">Excluir</button>
+      <button class="icon-action danger my-sim-delete" type="button" data-delete-user-sim="${us.userSimulationId}" title="Excluir simulado gerado" aria-label="Excluir simulado gerado">
+        <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+      </button>
     </div>`;
   }
 

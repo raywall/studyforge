@@ -290,8 +290,12 @@
           </div>
         </div>
         <div class="admin-row-actions">
-          <button class="btn btn-secondary btn-sm" data-edit-sim="${esc(sim.simulationId)}">Editar</button>
-          <button class="btn btn-danger btn-sm" data-delete-sim="${esc(sim.simulationId)}">Remover</button>
+          <button class="icon-action" data-edit-sim="${esc(sim.simulationId)}" title="Editar simulado" aria-label="Editar simulado">
+            <i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>
+          </button>
+          <button class="icon-action danger" data-delete-sim="${esc(sim.simulationId)}" title="Remover simulado" aria-label="Remover simulado">
+            <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+          </button>
         </div>
       </div>`).join('');
     el.querySelectorAll('[data-edit-sim]').forEach(btn => btn.addEventListener('click', () => editSimulation(btn.dataset.editSim)));
@@ -339,8 +343,12 @@
         <td>${esc(correctIndexesLabel(q))}</td>
         <td>
           <div class="admin-table-actions">
-            <button class="btn btn-secondary btn-sm" data-edit-question="${esc(q.questionId)}">Editar</button>
-            <button class="btn btn-danger btn-sm" data-delete-question="${esc(q.questionId)}">Remover</button>
+            <button class="icon-action" data-edit-question="${esc(q.questionId)}" title="Editar questão" aria-label="Editar questão">
+              <i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>
+            </button>
+            <button class="icon-action danger" data-delete-question="${esc(q.questionId)}" title="Remover questão" aria-label="Remover questão">
+              <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+            </button>
           </div>
         </td>
       </tr>`).join('');
@@ -401,14 +409,22 @@
           </dl>
         </div>
         <div class="admin-row-actions">
-          <button class="btn btn-secondary btn-sm" data-toggle-user="${esc(user.userId)}">Ver dados</button>
+          <button class="icon-action" data-toggle-user="${esc(user.userId)}" title="Ver dados" aria-label="Ver dados">
+            <i class="fa-solid fa-eye" aria-hidden="true"></i>
+          </button>
         </div>
       </div>`).join('');
     el.querySelectorAll('[data-toggle-user]').forEach(btn => {
       btn.addEventListener('click', () => {
         const details = document.getElementById(`user-details-${btn.dataset.toggleUser}`);
         const isHidden = details?.classList.toggle('hidden');
-        btn.textContent = isHidden ? 'Ver dados' : 'Ocultar';
+        const title = isHidden ? 'Ver dados' : 'Ocultar dados';
+        const icon = btn.querySelector('i');
+        if (icon) {
+          icon.className = isHidden ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+        }
+        btn.title = title;
+        btn.setAttribute('aria-label', title);
       });
     });
   }
