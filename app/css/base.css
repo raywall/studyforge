@@ -7,7 +7,9 @@
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr;
   grid-template-rows: var(--header-height) 1fr;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 .app-layout.sidebar-collapsed {
@@ -15,13 +17,13 @@
 }
 
 /* Wrapper divs injected by components.js — must be the direct grid children */
-#app-header  { grid-column: 1 / -1; grid-row: 1; }
-#app-sidebar { grid-column: 1;      grid-row: 2; }
+#app-header  { grid-column: 1 / -1; grid-row: 1; position: relative; z-index: 40; }
+#app-sidebar { grid-column: 1;      grid-row: 2; min-height: 0; }
 
 /* Inner elements keep visual styling; .app-main is a direct grid child */
 .app-header  { height: var(--header-height); }
 .app-sidebar { height: 100%; }
-.app-main    { grid-column: 2; grid-row: 2; overflow-y: auto; min-width: 0; }
+.app-main    { grid-column: 2; grid-row: 2; overflow-y: auto; min-width: 0; min-height: 0; }
 
 .container { max-width: var(--content-max-w); margin: 0 auto; padding: 0 var(--space-6); }
 .page-content { padding: var(--space-8) var(--space-6); }
