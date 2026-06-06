@@ -117,36 +117,11 @@
       </section>
 
       <section class="admin-panel hidden" data-panel="questions">
-        <div class="card admin-question-bank">
+        <form class="admin-form card" id="question-form">
           <div class="card-header admin-question-bank-header">
-            <strong>Banco de questões</strong>
+            <strong>Visualização e edição da questão</strong>
             <button class="btn btn-secondary btn-sm" type="button" id="btn-open-ai">Usar IA</button>
           </div>
-          <div class="card-body">
-            <div class="admin-question-filters">
-              <select class="form-select" id="question-filter"></select>
-              <input class="form-input" id="question-search" type="search" placeholder="Filtrar por enunciado, tópico, dificuldade ou resposta">
-            </div>
-            <div class="admin-table-wrap">
-              <table class="admin-table">
-                <thead>
-                  <tr>
-                    <th>Questão</th>
-                    <th>Simulado</th>
-                    <th>Tópico</th>
-                    <th>Dificuldade</th>
-                    <th>Respostas</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="questions-admin-list"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <form class="admin-form card" id="question-form">
-          <div class="card-header"><strong>Visualização e edição da questão</strong></div>
           <div class="card-body admin-form-grid">
             <input type="hidden" name="questionId">
             <div class="form-group span-2">
@@ -198,16 +173,40 @@
             <button class="btn btn-primary" type="submit">Salvar questão</button>
           </div>
         </form>
+
+        <div class="card admin-question-bank">
+          <div class="card-header">
+            <strong>Banco de questões</strong>
+          </div>
+          <div class="card-body">
+            <div class="admin-question-filters">
+              <select class="form-select" id="question-filter"></select>
+              <input class="form-input" id="question-search" type="search" placeholder="Filtrar questões">
+            </div>
+            <div class="admin-compact-list admin-question-list" id="questions-admin-list"></div>
+          </div>
+        </div>
       </section>
 
       <section class="admin-panel hidden" data-panel="users">
-        <div class="card">
-          <div class="card-header admin-table-header">
+        <div class="card admin-users-list-card">
+          <div class="card-header">
             <strong>Usuários cadastrados</strong>
+          </div>
+          <div class="card-body admin-user-filter">
             <input class="form-input" id="user-filter" type="search" placeholder="Buscar por nome, e-mail, cidade ou empresa">
           </div>
           <div class="card-body admin-list" id="users-admin-list"></div>
         </div>
+
+        <form class="admin-form card" id="user-details-form">
+          <div class="card-header"><strong>Dados do usuário</strong></div>
+          <div class="card-body admin-form-grid" id="user-details-panel">
+            <div class="admin-user-placeholder span-2">
+              Selecione um usuário para visualizar seus dados.
+            </div>
+          </div>
+        </form>
       </section>
     </div>
   </main>
@@ -264,7 +263,7 @@
 <script src="js/utils.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/api.js"></script>
-<script src="js/components.js?v=20260603-1"></script>
+<script src="js/components.js?v=20260606-1"></script>
 <script src="js/admin.js"></script>
 </body>
 </html>

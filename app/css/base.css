@@ -10,6 +10,10 @@
   min-height: 100vh;
 }
 
+.app-layout.sidebar-collapsed {
+  grid-template-columns: 68px 1fr;
+}
+
 /* Wrapper divs injected by components.js — must be the direct grid children */
 #app-header  { grid-column: 1 / -1; grid-row: 1; }
 #app-sidebar { grid-column: 1;      grid-row: 2; }

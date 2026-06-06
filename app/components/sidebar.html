@@ -1,4 +1,9 @@
 <aside class="app-sidebar" id="app-sidebar">
+  <button class="sidebar-collapse-toggle" type="button" data-sidebar-collapse title="Minimizar menu" aria-label="Minimizar menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </button>
   <div class="sidebar-section">
     <nav class="sidebar-nav">
       <a href="dashboard.html" class="sidebar-link" data-page="dashboard.html">
@@ -6,13 +11,13 @@
           <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
           <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
         </svg>
-        Dashboard
+        <span class="sidebar-link-label">Dashboard</span>
       </a>
       <a href="admin.html" class="sidebar-link hidden" data-page="admin.html" data-admin-only>
         <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
         </svg>
-        Administração
+        <span class="sidebar-link-label">Administração</span>
       </a>
     </nav>
   </div>
@@ -26,14 +31,14 @@
           <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
           <line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
         </svg>
-        Em andamento
+        <span class="sidebar-link-label">Em andamento</span>
         <span class="sidebar-badge" id="in-progress-count">—</span>
       </a>
       <a href="dashboard.html#completed" class="sidebar-link" data-page="">
         <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="20 6 9 17 4 12"/>
         </svg>
-        Concluídos
+        <span class="sidebar-link-label">Concluídos</span>
       </a>
     </nav>
   </div>

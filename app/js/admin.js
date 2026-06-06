@@ -13,7 +13,16 @@
     return;
   }
 
-  const state = { simulations: [], questions: [], users: [], simulationSubject: '', simulationLevel: '', simulationStatus: '', simulationQuery: '' };
+  const state = {
+    simulations: [],
+    questions: [],
+    users: [],
+    selectedUserId: '',
+    simulationSubject: '',
+    simulationLevel: '',
+    simulationStatus: '',
+    simulationQuery: '',
+  };
   const simForm = document.getElementById('simulation-form');
   const qForm = document.getElementById('question-form');
   const aiForm = document.getElementById('ai-question-form');
@@ -327,33 +336,36 @@
       .filter(q => !term || questionMatchesTerm(q, term, bySim))
       .sort((a, b) => String(a.category || '').localeCompare(String(b.category || '')) || String(a.text || '').localeCompare(String(b.text || '')));
     if (!questions.length) {
-      el.innerHTML = emptyTable(term ? 'Nenhuma questão encontrada com esse filtro.' : 'Nenhuma questão encontrada.');
+      el.innerHTML = empty(term ? 'Nenhuma questão encontrada com esse filtro.' : 'Nenhuma questão encontrada.');
       return;
     }
     el.innerHTML = questions.map(q => `
-      <tr class="${q.questionId === selectedId ? 'selected' : ''}">
-        <td>
-          <button class="admin-table-question" type="button" data-edit-question="${esc(q.questionId)}">
-            ${esc(Utils.truncate(q.text, 150))}
+      <article class="admin-question-item ${q.questionId === selectedId ? 'selected' : ''}" data-edit-question="${esc(q.questionId)}">
+        <div class="admin-question-item-top">
+          <span>${esc(q.category || 'Sem tópico')}</span>
+          <span class="admin-question-item-stats" title="${esc(difficultyLabel(q.difficulty))}">
+            ${requiredAnswers(q)} resposta${requiredAnswers(q) !== 1 ? 's' : ''} | ${difficultyIcon(q.difficulty)}
+          </span>
+        </div>
+        <div class="admin-question-item-simulation">${esc(bySim.get(q.simulationId) || q.simulationId || 'Sem simulado')}</div>
+        <div class="admin-question-item-text">${esc(Utils.truncate(q.text, 180))}</div>
+        <div class="admin-question-item-actions">
+          <button class="icon-action" data-edit-question="${esc(q.questionId)}" title="Editar questão" aria-label="Editar questão">
+            <i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>
           </button>
-        </td>
-        <td>${esc(bySim.get(q.simulationId) || q.simulationId || 'Sem simulado')}</td>
-        <td>${esc(q.category || 'Sem tópico')}</td>
-        <td>${esc(difficultyLabel(q.difficulty))}</td>
-        <td>${esc(correctIndexesLabel(q))}</td>
-        <td>
-          <div class="admin-table-actions">
-            <button class="icon-action" data-edit-question="${esc(q.questionId)}" title="Editar questão" aria-label="Editar questão">
-              <i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>
-            </button>
-            <button class="icon-action danger" data-delete-question="${esc(q.questionId)}" title="Remover questão" aria-label="Remover questão">
-              <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
-            </button>
-          </div>
-        </td>
-      </tr>`).join('');
-    el.querySelectorAll('[data-edit-question]').forEach(btn => btn.addEventListener('click', () => editQuestion(btn.dataset.editQuestion)));
-    el.querySelectorAll('[data-delete-question]').forEach(btn => btn.addEventListener('click', () => deleteQuestion(btn.dataset.deleteQuestion)));
+          <button class="icon-action danger" data-delete-question="${esc(q.questionId)}" title="Remover questão" aria-label="Remover questão">
+            <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+          </button>
+        </div>
+      </article>`).join('');
+    el.querySelectorAll('[data-edit-question]').forEach(btn => btn.addEventListener('click', e => {
+      if (btn.matches('button')) e.stopPropagation();
+      editQuestion(btn.dataset.editQuestion);
+    }));
+    el.querySelectorAll('[data-delete-question]').forEach(btn => btn.addEventListener('click', e => {
+      e.stopPropagation();
+      deleteQuestion(btn.dataset.deleteQuestion);
+    }));
   }
 
   function renderUsers() {
@@ -376,10 +388,14 @@
       .sort((a, b) => String(a.name || a.email).localeCompare(String(b.name || b.email)));
     if (!users.length) {
       el.innerHTML = empty(term ? 'Nenhum usuário encontrado.' : 'Nenhum usuário cadastrado.');
+      renderUserDetails(null);
       return;
     }
+    if (!users.some(user => user.userId === state.selectedUserId)) {
+      state.selectedUserId = users[0].userId;
+    }
     el.innerHTML = users.map(user => `
-      <div class="admin-row admin-user-row">
+      <div class="admin-row admin-user-row ${user.userId === state.selectedUserId ? 'selected' : ''}" data-select-user="${esc(user.userId)}">
         <div>
           <div class="admin-row-title">${esc(user.name || user.email)}</div>
           <div class="admin-row-meta">
@@ -388,45 +404,49 @@
             <span>${user.emailVerified ? 'E-mail verificado' : 'Pendente de ativação'}</span>
             <span>${esc([user.city, user.state, user.country].filter(Boolean).join(' / ') || 'Local não informado')}</span>
           </div>
-          <dl class="admin-user-details hidden" id="user-details-${esc(user.userId)}">
-            ${userDetail('Nome', user.name)}
-            ${userDetail('Nome completo', [user.firstName, user.lastName].filter(Boolean).join(' '))}
-            ${userDetail('E-mail', user.email)}
-            ${userDetail('Telefone', user.phone)}
-            ${userDetail('Nascimento', formatDate(user.birthDate))}
-            ${userDetail('Cidade', user.city)}
-            ${userDetail('Estado', user.state)}
-            ${userDetail('País', user.country)}
-            ${userDetail('Profissão', user.profession)}
-            ${userDetail('Formação', user.education)}
-            ${userDetail('Cargo', user.jobTitle)}
-            ${userDetail('Empresa', user.company)}
-            ${userDetail('Perfil', user.role === 'admin' ? 'Administrador' : 'Estudante')}
-            ${userDetail('Ativação', user.emailVerified ? 'E-mail verificado' : 'Pendente de ativação')}
-            ${userDetail('Cadastro', formatDateTime(user.createdAt))}
-            ${userDetail('Último login', formatDateTime(user.lastLoginAt) || 'Ainda não acessou')}
-            ${userDetail('ID', user.userId)}
-          </dl>
         </div>
         <div class="admin-row-actions">
-          <button class="icon-action" data-toggle-user="${esc(user.userId)}" title="Ver dados" aria-label="Ver dados">
+          <button class="icon-action" data-select-user="${esc(user.userId)}" title="Ver dados" aria-label="Ver dados">
             <i class="fa-solid fa-eye" aria-hidden="true"></i>
           </button>
         </div>
       </div>`).join('');
-    el.querySelectorAll('[data-toggle-user]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const details = document.getElementById(`user-details-${btn.dataset.toggleUser}`);
-        const isHidden = details?.classList.toggle('hidden');
-        const title = isHidden ? 'Ver dados' : 'Ocultar dados';
-        const icon = btn.querySelector('i');
-        if (icon) {
-          icon.className = isHidden ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
-        }
-        btn.title = title;
-        btn.setAttribute('aria-label', title);
+    el.querySelectorAll('[data-select-user]').forEach(control => {
+      control.addEventListener('click', e => {
+        e.stopPropagation();
+        state.selectedUserId = control.dataset.selectUser;
+        renderUsers();
       });
     });
+    renderUserDetails(users.find(user => user.userId === state.selectedUserId));
+  }
+
+  function renderUserDetails(user) {
+    const panel = document.getElementById('user-details-panel');
+    if (!panel) return;
+    if (!user) {
+      panel.innerHTML = '<div class="admin-user-placeholder span-2">Selecione um usuário para visualizar seus dados.</div>';
+      return;
+    }
+    panel.innerHTML = [
+      readonlyField('Nome', user.name, true),
+      readonlyField('Nome completo', [user.firstName, user.lastName].filter(Boolean).join(' '), true),
+      readonlyField('E-mail', user.email, true),
+      readonlyField('Telefone', user.phone),
+      readonlyField('Nascimento', formatDate(user.birthDate)),
+      readonlyField('Cidade', user.city),
+      readonlyField('Estado', user.state),
+      readonlyField('País', user.country),
+      readonlyField('Profissão', user.profession),
+      readonlyField('Formação', user.education),
+      readonlyField('Cargo', user.jobTitle),
+      readonlyField('Empresa', user.company),
+      readonlyField('Perfil', user.role === 'admin' ? 'Administrador' : 'Estudante'),
+      readonlyField('Ativação', user.emailVerified ? 'E-mail verificado' : 'Pendente de ativação'),
+      readonlyField('Cadastro', formatDateTime(user.createdAt)),
+      readonlyField('Último login', formatDateTime(user.lastLoginAt) || 'Ainda não acessou'),
+      readonlyField('ID', user.userId, true),
+    ].join('');
   }
 
   function editSimulation(id) {
@@ -521,10 +541,6 @@
 
   function empty(text) {
     return `<div class="empty-state" style="padding:var(--space-8)"><h3>${esc(text)}</h3></div>`;
-  }
-
-  function emptyTable(text) {
-    return `<tr><td colspan="6"><div class="empty-state admin-table-empty"><h3>${esc(text)}</h3></div></td></tr>`;
   }
 
   function bindAIModal() {
@@ -638,10 +654,30 @@
     return ({ easy: 'Básica', medium: 'Média', hard: 'Avançada' })[value] || value || 'Média';
   }
 
-  function userDetail(label, value) {
-    const text = String(value || '').trim();
-    if (!text) return '';
-    return `<div><dt>${esc(label)}</dt><dd>${esc(text)}</dd></div>`;
+  function difficultyIcon(value) {
+    const icons = {
+      easy: '<i class="fa-solid fa-circle text-success" aria-hidden="true"></i>',
+      medium: '<i class="fa-solid fa-circle-half-stroke text-warning" aria-hidden="true"></i>',
+      hard: '<i class="fa-solid fa-circle-exclamation text-danger" aria-hidden="true"></i>',
+    };
+    return icons[value] || icons.medium;
+  }
+
+  function requiredAnswers(question) {
+    if (Number(question.requiredAnswers) > 0) return Number(question.requiredAnswers);
+    if (Array.isArray(question.correctOptionIndexes) && question.correctOptionIndexes.length) {
+      return question.correctOptionIndexes.length;
+    }
+    return 1;
+  }
+
+  function readonlyField(label, value, span = false) {
+    const text = String(value || '').trim() || 'Não informado';
+    return `
+      <div class="form-group admin-readonly-field ${span ? 'span-2' : ''}">
+        <label class="form-label">${esc(label)}</label>
+        <div class="admin-readonly-value">${esc(text)}</div>
+      </div>`;
   }
 
   function formatDate(value) {

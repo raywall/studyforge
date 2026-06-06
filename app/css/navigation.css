@@ -80,6 +80,30 @@
   position: sticky; top: var(--header-height); overflow-y: auto;
   display: flex; flex-direction: column;
 }
+.sidebar-collapse-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  margin: var(--space-3) var(--space-3) 0 auto;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.sidebar-collapse-toggle:hover {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+.sidebar-collapse-toggle svg {
+  width: 16px;
+  height: 16px;
+  transition: transform var(--transition-fast);
+}
 .sidebar-section { padding: var(--space-4) var(--space-3); }
 .sidebar-section + .sidebar-section { border-top: 1px solid var(--border-color); }
 .sidebar-section-title {
@@ -122,6 +146,37 @@
 .sidebar-user-name { font-size: var(--text-sm); font-weight: var(--weight-medium); truncate; }
 .sidebar-user-email { font-size: var(--text-xs); color: var(--text-muted); }
 
+.app-layout.sidebar-collapsed .app-sidebar {
+  width: 68px;
+}
+.app-layout.sidebar-collapsed .sidebar-collapse-toggle {
+  margin-right: auto;
+}
+.app-layout.sidebar-collapsed .sidebar-collapse-toggle svg {
+  transform: rotate(180deg);
+}
+.app-layout.sidebar-collapsed .sidebar-section {
+  padding-inline: var(--space-2);
+}
+.app-layout.sidebar-collapsed .sidebar-section-title,
+.app-layout.sidebar-collapsed .sidebar-link-label,
+.app-layout.sidebar-collapsed .sidebar-badge,
+.app-layout.sidebar-collapsed .sidebar-user-info {
+  display: none;
+}
+.app-layout.sidebar-collapsed .sidebar-link,
+.app-layout.sidebar-collapsed .sidebar-user {
+  justify-content: center;
+  gap: 0;
+  padding-inline: var(--space-2);
+}
+.app-layout.sidebar-collapsed .sidebar-footer {
+  padding-inline: var(--space-2);
+}
+.app-layout.sidebar-collapsed .sidebar-user > svg {
+  display: none;
+}
+
 /* Mobile hamburger */
 .btn-menu {
   display: none; background: none; border: none;
@@ -129,6 +184,8 @@
   border-radius: var(--radius-md);
 }
 @media (max-width: 1024px) {
+  .app-layout.sidebar-collapsed { grid-template-columns: 1fr; }
+  .sidebar-collapse-toggle { display: none; }
   .btn-menu { display: flex; align-items: center; }
   .header-search { width: 180px; }
 }

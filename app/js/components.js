@@ -87,6 +87,22 @@ const Components = (() => {
   function initSidebar() {
     const user = Auth.getUser();
     if (!user) return;
+    const layout = document.querySelector('.app-layout');
+    const collapseButton = document.querySelector('[data-sidebar-collapse]');
+    const setCollapsed = collapsed => {
+      layout?.classList.toggle('sidebar-collapsed', collapsed);
+      if (collapseButton) {
+        const label = collapsed ? 'Maximizar menu' : 'Minimizar menu';
+        collapseButton.title = label;
+        collapseButton.setAttribute('aria-label', label);
+        collapseButton.setAttribute('aria-expanded', String(!collapsed));
+      }
+      localStorage.setItem('studyforge-sidebar-collapsed', collapsed ? 'true' : 'false');
+    };
+    setCollapsed(localStorage.getItem('studyforge-sidebar-collapsed') === 'true');
+    collapseButton?.addEventListener('click', () => {
+      setCollapsed(!layout?.classList.contains('sidebar-collapsed'));
+    });
     const nameEl  = document.querySelector('.sidebar-user-name');
     const emailEl = document.querySelector('.sidebar-user-email');
     const avatar  = document.querySelector('.sidebar-user-avatar');
@@ -110,12 +126,13 @@ const Components = (() => {
     if (!nav) return;
     const subjects = [...new Set(simulations.map(sim => (sim.subject || '').trim()).filter(Boolean))].sort();
     if (!subjects.length) {
-      nav.innerHTML = '<span class="sidebar-link">Sem catálogos ativos</span>';
+      nav.innerHTML = '<span class="sidebar-link"><span class="sidebar-link-label">Sem catálogos ativos</span></span>';
       return;
     }
     nav.innerHTML = subjects.map(subject => `
       <a href="dashboard.html?filter=${encodeURIComponent(subject.toLowerCase())}" class="sidebar-link">
-        <span style="font-size:1rem">${Utils.subjectIcon(subject)}</span> ${subject.toUpperCase()}
+        <span style="font-size:1rem">${Utils.subjectIcon(subject)}</span>
+        <span class="sidebar-link-label">${subject.toUpperCase()}</span>
       </a>
     `).join('');
   }
