@@ -18,6 +18,7 @@
     questions: [],
     users: [],
     selectedUserId: '',
+    questionTopic: '',
     simulationSubject: '',
     simulationLevel: '',
     simulationStatus: '',
@@ -35,6 +36,10 @@
   document.getElementById('btn-refresh')?.addEventListener('click', loadAll);
   document.getElementById('btn-reset-forms')?.addEventListener('click', resetForms);
   document.getElementById('question-filter')?.addEventListener('change', loadQuestions);
+  document.getElementById('question-topic-filter')?.addEventListener('change', e => {
+    state.questionTopic = e.target.value;
+    renderQuestions();
+  });
   document.getElementById('question-search')?.addEventListener('input', renderQuestions);
   document.getElementById('simulation-search')?.addEventListener('input', Utils.debounce(e => {
     state.simulationQuery = e.target.value;
@@ -76,6 +81,7 @@
     try {
       const res = await API.admin.questions.list(filter);
       state.questions = res.questions || [];
+      renderQuestionTopicFilter();
       renderQuestions();
     } catch (e) {
       Utils.toast(e.message || 'Erro ao carregar questões', 'error');
@@ -258,7 +264,25 @@
       syncAIFormFromSimulation();
     }
     const filter = document.getElementById('question-filter');
-    if (filter) filter.innerHTML = `<option value="">Todos os simulados</option>${opts}`;
+    if (filter) {
+      const selected = filter.value;
+      filter.innerHTML = `<option value="">Todos os simulados</option>${opts}`;
+      filter.value = state.simulations.some(sim => sim.simulationId === selected) ? selected : '';
+    }
+  }
+
+  function renderQuestionTopicFilter() {
+    const filter = document.getElementById('question-topic-filter');
+    if (!filter) return;
+    const topics = [...new Set(state.questions
+      .map(question => String(question.category || '').trim())
+      .filter(Boolean))]
+      .sort((a, b) => a.localeCompare(b));
+    if (!topics.includes(state.questionTopic)) state.questionTopic = '';
+    filter.innerHTML = '<option value="">Todos os tópicos</option>' + topics
+      .map(topic => `<option value="${esc(topic)}">${esc(topic)}</option>`)
+      .join('');
+    filter.value = state.questionTopic;
   }
 
   function renderSimulationFilters() {
@@ -347,10 +371,11 @@
     const selectedId = qForm?.elements.questionId?.value || '';
     const bySim = new Map(state.simulations.map(s => [s.simulationId, s.title]));
     const questions = state.questions
+      .filter(q => !state.questionTopic || q.category === state.questionTopic)
       .filter(q => !term || questionMatchesTerm(q, term, bySim))
       .sort((a, b) => String(a.category || '').localeCompare(String(b.category || '')) || String(a.text || '').localeCompare(String(b.text || '')));
     if (!questions.length) {
-      el.innerHTML = empty(term ? 'Nenhuma questão encontrada com esse filtro.' : 'Nenhuma questão encontrada.');
+      el.innerHTML = empty(term || state.questionTopic ? 'Nenhuma questão encontrada com esse filtro.' : 'Nenhuma questão encontrada.');
       return;
     }
     el.innerHTML = questions.map(q => `
