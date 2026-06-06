@@ -95,10 +95,14 @@ textarea.form-input {
   transition: all var(--transition-fast);
 }
 
-.admin-list-item:hover,
-.admin-list-item.selected {
+.admin-list-item:hover {
   border-color: var(--color-primary);
   background: var(--color-primary-light);
+}
+
+.admin-list-item.selected {
+  border-color: var(--color-primary);
+  background: #eefdf9;
 }
 
 .admin-list-item-title {
