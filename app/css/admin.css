@@ -360,6 +360,17 @@ textarea.form-input {
   box-shadow: 0 0 0 3px var(--color-danger-light);
 }
 
+.admin-review-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-warning);
+}
+
+.admin-question-item:has(.admin-review-status) {
+  border-color: color-mix(in srgb, var(--color-warning) 55%, var(--border-color));
+}
+
 .admin-question-item-actions {
   display: flex;
   align-items: center;

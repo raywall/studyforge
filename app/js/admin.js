@@ -187,6 +187,7 @@
       explanation: fd.get('explanation').trim(),
       category: fd.get('category').trim(),
       difficulty: fd.get('difficulty'),
+      inReview: fd.get('inReview') === 'on',
       tags: parseList(fd.get('tags')),
     };
   }
@@ -355,6 +356,7 @@
           <div class="admin-question-item-stats" title="${esc(difficultyLabel(q.difficulty))}">
             ${difficultyIcon(q.difficulty)}
             <span>${requiredAnswers(q)} resposta${requiredAnswers(q) !== 1 ? 's' : ''}</span>
+            ${q.inReview ? '<span class="admin-review-status"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Em revisão</span>' : ''}
           </div>
           <div class="admin-question-item-actions">
             <button class="icon-action" data-edit-question="${esc(q.questionId)}" title="Editar questão" aria-label="Editar questão">
@@ -496,6 +498,7 @@
     qForm.elements.explanation.value = q.explanation || '';
     qForm.elements.category.value = q.category || '';
     qForm.elements.difficulty.value = q.difficulty || 'medium';
+    qForm.elements.inReview.checked = !!q.inReview;
     qForm.elements.tags.value = (q.tags || []).join(', ');
     setMarkdownTab('edit');
     updateMarkdownTools();
@@ -546,6 +549,7 @@
     qForm.elements.questionId.value = '';
     qForm.elements.correctOptionIndexes.value = '1';
     qForm.elements.difficulty.value = 'medium';
+    qForm.elements.inReview.checked = false;
     setMarkdownTab('edit');
     updateMarkdownTools();
     renderQuestions();
@@ -649,6 +653,7 @@
       q.tags?.join(' '),
       q.options?.join(' '),
       correctIndexesLabel(q),
+      q.inReview ? 'em revisao revisão' : 'aprovada',
       bySim.get(q.simulationId),
       q.simulationId,
     ].some(value => normalizeSearch(value).includes(term));
