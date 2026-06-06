@@ -341,21 +341,22 @@
     }
     el.innerHTML = questions.map(q => `
       <article class="admin-question-item ${q.questionId === selectedId ? 'selected' : ''}" data-edit-question="${esc(q.questionId)}">
-        <div class="admin-question-item-top">
-          <span>${esc(q.category || 'Sem tópico')}</span>
-          <span class="admin-question-item-stats" title="${esc(difficultyLabel(q.difficulty))}">
-            ${requiredAnswers(q)} resposta${requiredAnswers(q) !== 1 ? 's' : ''} | ${difficultyIcon(q.difficulty)}
-          </span>
-        </div>
         <div class="admin-question-item-simulation">${esc(bySim.get(q.simulationId) || q.simulationId || 'Sem simulado')}</div>
+        <div class="admin-question-item-category">${esc(q.category || 'Sem tópico')}</div>
         <div class="admin-question-item-text">${esc(Utils.truncate(q.text, 180))}</div>
-        <div class="admin-question-item-actions">
-          <button class="icon-action" data-edit-question="${esc(q.questionId)}" title="Editar questão" aria-label="Editar questão">
-            <i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>
-          </button>
-          <button class="icon-action danger" data-delete-question="${esc(q.questionId)}" title="Remover questão" aria-label="Remover questão">
-            <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
-          </button>
+        <div class="admin-question-item-footer">
+          <div class="admin-question-item-stats" title="${esc(difficultyLabel(q.difficulty))}">
+            ${difficultyIcon(q.difficulty)}
+            <span>${requiredAnswers(q)} resposta${requiredAnswers(q) !== 1 ? 's' : ''}</span>
+          </div>
+          <div class="admin-question-item-actions">
+            <button class="icon-action" data-edit-question="${esc(q.questionId)}" title="Editar questão" aria-label="Editar questão">
+              <i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>
+            </button>
+            <button class="icon-action danger" data-delete-question="${esc(q.questionId)}" title="Remover questão" aria-label="Remover questão">
+              <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+            </button>
+          </div>
         </div>
       </article>`).join('');
     el.querySelectorAll('[data-edit-question]').forEach(btn => btn.addEventListener('click', e => {
@@ -655,12 +656,8 @@
   }
 
   function difficultyIcon(value) {
-    const icons = {
-      easy: '<i class="fa-solid fa-circle text-success" aria-hidden="true"></i>',
-      medium: '<i class="fa-solid fa-circle-half-stroke text-warning" aria-hidden="true"></i>',
-      hard: '<i class="fa-solid fa-circle-exclamation text-danger" aria-hidden="true"></i>',
-    };
-    return icons[value] || icons.medium;
+    const difficulty = ['easy', 'medium', 'hard'].includes(value) ? value : 'medium';
+    return `<span class="admin-difficulty-dot ${difficulty}" aria-hidden="true"></span>`;
   }
 
   function requiredAnswers(question) {
