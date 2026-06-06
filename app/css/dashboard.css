@@ -35,8 +35,8 @@
 .stats-card-icon.yellow { background: var(--color-warning-light); color: var(--color-warning); }
 .dashboard-stat-icon {
   display: block;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   aspect-ratio: 1 / 1;
   overflow: visible;
 }
