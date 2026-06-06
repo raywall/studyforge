@@ -107,12 +107,15 @@
     simForm?.addEventListener('submit', async e => {
       e.preventDefault();
       const btn = simForm.querySelector('button[type="submit"]');
+      const listScrollTop = getListScrollTop('simulations-admin-list');
       Utils.setLoading(btn, true, 'Salvando...');
       try {
-        await API.admin.simulations.save(readSimulationForm());
+        const result = await API.admin.simulations.save(readSimulationForm());
+        const saved = result.simulation || {};
+        if (saved.simulationId) simForm.elements.simulationId.value = saved.simulationId;
         Utils.toast('Simulado salvo.', 'success');
-        resetSimulationForm();
         await loadAll();
+        restoreListScrollTop('simulations-admin-list', listScrollTop);
       } catch (err) {
         Utils.toast(err.message || 'Erro ao salvar simulado', 'error');
       } finally {
@@ -123,12 +126,15 @@
     qForm?.addEventListener('submit', async e => {
       e.preventDefault();
       const btn = qForm.querySelector('button[type="submit"]');
+      const listScrollTop = getListScrollTop('questions-admin-list');
       Utils.setLoading(btn, true, 'Salvando...');
       try {
-        await API.admin.questions.save(readQuestionForm());
+        const result = await API.admin.questions.save(readQuestionForm());
+        const saved = result.question || {};
+        if (saved.questionId) qForm.elements.questionId.value = saved.questionId;
         Utils.toast('Questão salva.', 'success');
-        resetQuestionForm();
         await loadQuestions();
+        restoreListScrollTop('questions-admin-list', listScrollTop);
       } catch (err) {
         Utils.toast(err.message || 'Erro ao salvar questão', 'error');
       } finally {
@@ -557,6 +563,15 @@
 
   function empty(text) {
     return `<div class="empty-state" style="padding:var(--space-8)"><h3>${esc(text)}</h3></div>`;
+  }
+
+  function getListScrollTop(id) {
+    return document.getElementById(id)?.scrollTop || 0;
+  }
+
+  function restoreListScrollTop(id, scrollTop) {
+    const list = document.getElementById(id);
+    if (list) list.scrollTop = scrollTop;
   }
 
   function bindAIModal() {
