@@ -287,28 +287,35 @@
       return;
     }
     el.innerHTML = filtered.map(sim => `
-      <div class="admin-row">
-        <div>
-          <div class="admin-row-title">${esc(sim.title)}</div>
-          <div class="admin-row-meta">
-            <span>${esc(sim.subject)}</span>
-            <span>${esc(Utils.levelLabel(sim.level))}</span>
+      <article class="admin-list-item ${sim.simulationId === simForm?.elements.simulationId?.value ? 'selected' : ''}" data-edit-sim="${esc(sim.simulationId)}">
+        <div class="admin-list-item-title">${esc(sim.title)}</div>
+        <div class="admin-list-item-subtitle">${esc(sim.subject)} · ${esc(Utils.levelLabel(sim.level))}</div>
+        <div class="admin-list-item-text">${esc(Utils.truncate(sim.description || 'Sem descrição cadastrada.', 150))}</div>
+        <div class="admin-list-item-footer">
+          <div class="admin-list-item-meta">
+            <span class="admin-status-dot ${sim.active ? 'active' : 'inactive'}" aria-hidden="true"></span>
+            <span>${sim.active ? 'Ativo' : 'Inativo'}</span>
             <span>${sim.questionCount} questões</span>
             <span>${sim.timeLimitMinutes || 0} min</span>
-            <span>${sim.active ? 'Ativo' : 'Inativo'}</span>
+          </div>
+          <div class="admin-list-item-actions">
+            <button class="icon-action" data-edit-sim="${esc(sim.simulationId)}" title="Editar simulado" aria-label="Editar simulado">
+              <i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>
+            </button>
+            <button class="icon-action danger" data-delete-sim="${esc(sim.simulationId)}" title="Remover simulado" aria-label="Remover simulado">
+              <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+            </button>
           </div>
         </div>
-        <div class="admin-row-actions">
-          <button class="icon-action" data-edit-sim="${esc(sim.simulationId)}" title="Editar simulado" aria-label="Editar simulado">
-            <i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>
-          </button>
-          <button class="icon-action danger" data-delete-sim="${esc(sim.simulationId)}" title="Remover simulado" aria-label="Remover simulado">
-            <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
-          </button>
-        </div>
-      </div>`).join('');
-    el.querySelectorAll('[data-edit-sim]').forEach(btn => btn.addEventListener('click', () => editSimulation(btn.dataset.editSim)));
-    el.querySelectorAll('[data-delete-sim]').forEach(btn => btn.addEventListener('click', () => deleteSimulation(btn.dataset.deleteSim)));
+      </article>`).join('');
+    el.querySelectorAll('[data-edit-sim]').forEach(control => control.addEventListener('click', e => {
+      if (control.matches('button')) e.stopPropagation();
+      editSimulation(control.dataset.editSim);
+    }));
+    el.querySelectorAll('[data-delete-sim]').forEach(btn => btn.addEventListener('click', e => {
+      e.stopPropagation();
+      deleteSimulation(btn.dataset.deleteSim);
+    }));
   }
 
   function filteredSimulations() {
@@ -340,7 +347,7 @@
       return;
     }
     el.innerHTML = questions.map(q => `
-      <article class="admin-question-item ${q.questionId === selectedId ? 'selected' : ''}" data-edit-question="${esc(q.questionId)}">
+      <article class="admin-list-item admin-question-item ${q.questionId === selectedId ? 'selected' : ''}" data-edit-question="${esc(q.questionId)}">
         <div class="admin-question-item-simulation">${esc(bySim.get(q.simulationId) || q.simulationId || 'Sem simulado')}</div>
         <div class="admin-question-item-category">${esc(q.category || 'Sem tópico')}</div>
         <div class="admin-question-item-text">${esc(Utils.truncate(q.text, 180))}</div>
@@ -396,22 +403,25 @@
       state.selectedUserId = users[0].userId;
     }
     el.innerHTML = users.map(user => `
-      <div class="admin-row admin-user-row ${user.userId === state.selectedUserId ? 'selected' : ''}" data-select-user="${esc(user.userId)}">
-        <div>
-          <div class="admin-row-title">${esc(user.name || user.email)}</div>
-          <div class="admin-row-meta">
-            <span>${esc(user.email)}</span>
-            <span>${esc(user.role === 'admin' ? 'Administrador' : 'Estudante')}</span>
+      <article class="admin-list-item admin-user-row ${user.userId === state.selectedUserId ? 'selected' : ''}" data-select-user="${esc(user.userId)}">
+        <div class="admin-list-item-title">${esc(user.name || user.email)}</div>
+        <div class="admin-list-item-subtitle">${esc(user.role === 'admin' ? 'Administrador' : 'Estudante')}</div>
+        <div class="admin-list-item-text">
+          ${esc(user.email)}<br>
+          ${esc([user.city, user.state, user.country].filter(Boolean).join(' / ') || 'Local não informado')}
+        </div>
+        <div class="admin-list-item-footer">
+          <div class="admin-list-item-meta">
+            <span class="admin-status-dot ${user.emailVerified ? 'active' : 'inactive'}" aria-hidden="true"></span>
             <span>${user.emailVerified ? 'E-mail verificado' : 'Pendente de ativação'}</span>
-            <span>${esc([user.city, user.state, user.country].filter(Boolean).join(' / ') || 'Local não informado')}</span>
+          </div>
+          <div class="admin-list-item-actions">
+            <button class="icon-action" data-select-user="${esc(user.userId)}" title="Ver dados" aria-label="Ver dados">
+              <i class="fa-solid fa-eye" aria-hidden="true"></i>
+            </button>
           </div>
         </div>
-        <div class="admin-row-actions">
-          <button class="icon-action" data-select-user="${esc(user.userId)}" title="Ver dados" aria-label="Ver dados">
-            <i class="fa-solid fa-eye" aria-hidden="true"></i>
-          </button>
-        </div>
-      </div>`).join('');
+      </article>`).join('');
     el.querySelectorAll('[data-select-user]').forEach(control => {
       control.addEventListener('click', e => {
         e.stopPropagation();
@@ -465,6 +475,7 @@
     simForm.elements.tags.value = (sim.tags || []).join(', ');
     simForm.elements.active.checked = !!sim.active;
     simForm.elements.isFree.checked = !!sim.isFree;
+    renderSimulations();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
